@@ -1,2 +1,2 @@
 #!/bin/bash
-pip install Flask
+pip install -r config/requirements.txt
