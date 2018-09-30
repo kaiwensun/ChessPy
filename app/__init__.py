@@ -3,8 +3,8 @@ import os
 from flask import Flask
 from config import settings
 
-from app.home.views import bp as home_bp
-from app.control.views import bp as control_bp
+from app.views.home.views import bp as home_bp
+from app.views.control.views import bp as control_bp
 
 os.environ['FLASK_ENV'] = settings.ENV
 app = Flask(__name__)
