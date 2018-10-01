@@ -1,7 +1,7 @@
 {% extends "layout/stretch_layout.html" %}
 
 {% block css %}
-    <link rel="stylesheet" href="/static/css/chessboard.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/chessboard.css', statics_version=utils.statics_version()) }}" />
 {% endblock %}
 
 {% block content %}
