@@ -1,3 +1,9 @@
+html {
+    box-sizing: border-box;
+}
+*, *:before, *:after {
+    box-sizing: inherit;
+}
 body, #root {
     height: 100vh;
     max-height: 100vh;
@@ -9,9 +15,6 @@ body, #root {
     padding: 0;
     overflow: hidden;
     background-color: red;
-}
-#root * {
-    overflow: hidden;
 }
 p {
     margin: 0;

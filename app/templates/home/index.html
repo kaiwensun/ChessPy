@@ -1,9 +1,15 @@
 {% extends "layout/stretch_layout.html" %}
+
+{% block css %}
+    <link rel="stylesheet" href="/static/css/chessboard.css" />
+{% endblock %}
+
 {% block content %}
-    <div style="height: 100%;">
-    {% for i in range(10) %}
-        <p>Hello World From Template!</p>
-    {% endfor %}
-    {{ url_for('static', filename='js/jquery-3.3.1.min.js', reload_date='') }}
+    <div>other</div>
+    <div id="chessboard-container">
+        <div id="chessboard">
+
+        </div>
     </div>
+    <div>other 2</div>
 {% endblock %}

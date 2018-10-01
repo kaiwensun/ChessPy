@@ -1,0 +1,12 @@
+#chessboard-container {
+    background-color: aqua;
+    width: 100%;
+    max-width: 900px;
+    height: 112%;
+}
+#chessboard {
+    background: url("/static/images/chess-board.png") no-repeat center center fixed;
+    background-size: contain;
+    width: 100%;
+    height: 100%;
+}
