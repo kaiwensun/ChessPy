@@ -10,7 +10,7 @@
                     showSignUpModal(html)
                 },
                 error: function() {
-                    window.chessPy.alert();
+                    window.chessPy.alert("{{ gettext('Oops! Something went wrong!') }}");
                 }
             });
         })
@@ -20,7 +20,7 @@
                 size: "small",
                 buttons: {
                     signup: {
-                        label: "Sign up",
+                        label: "{{ gettext('Sign up') }}",
                         className: "btn-primary",
                         callback: function() {
                             alert("submitting the form......")
@@ -33,14 +33,14 @@
 {% endblock %}
 
 {% block header %}
-    中国象棋
+    {{ gettext('Chinese Chess') }}
 {% endblock %}
 
 {% block below_board_buttons %}
     <button type="button" class="btn btn-primary sign-in">
-        登录
+        {{ gettext('Sign in') }}
     </button>
     <button type="button" class="btn btn-primary sign-up">
-        注册
+        {{ gettext('Sign up') }}
     </button>
 {% endblock %}
