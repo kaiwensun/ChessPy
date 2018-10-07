@@ -5,11 +5,16 @@
 {% endblock %}
 
 {% block header %}
-    中国象棋
+    {{ gettext('Chinese Chess') }}
 {% endblock %}
 
 {% block below_board_buttons %}
-    {% for text in ["开始", "悔棋", "求和", "认输"] %}
+    {% set button_texts = [
+        gettext("New game"),
+        gettext("Undo"),
+        gettext("Negotiate"),
+        gettext("Admit defeat")] %}
+    {% for text in button_texts %}
         <button>
             {{ text }}
         </button>
