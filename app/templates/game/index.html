@@ -1,0 +1,46 @@
+{% extends "layout/chessboard_layout.html" %}
+
+{% block js %}
+    <script>
+        $("button.sign-up").on("click", function() {
+            $.ajax({
+                method: 'GET',
+                url: "{{ url_for('modals.sign_up_modal')}}",
+                success: function(html) {
+                    showSignUpModal(html)
+                },
+                error: function() {
+                    window.chessPy.alert();
+                }
+            });
+        })
+        function showSignUpModal(html) {
+            bootbox.dialog({
+                message: html,
+                size: "small",
+                buttons: {
+                    signup: {
+                        label: "Sign up",
+                        className: "btn-primary",
+                        callback: function() {
+                            alert("submitting the form......")
+                        }
+                    }
+                }
+            })
+        }
+    </script>
+{% endblock %}
+
+{% block header %}
+    中国象棋
+{% endblock %}
+
+{% block below_board_buttons %}
+    <button type="button" class="btn btn-primary sign-in">
+        登录
+    </button>
+    <button type="button" class="btn btn-primary sign-up">
+        注册
+    </button>
+{% endblock %}

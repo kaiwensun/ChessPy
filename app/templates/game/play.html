@@ -1,0 +1,17 @@
+{% extends "layout/chessboard_layout.html" %}
+
+{% block css %}
+    
+{% endblock %}
+
+{% block header %}
+    中国象棋
+{% endblock %}
+
+{% block below_board_buttons %}
+    {% for text in ["开始", "悔棋", "求和", "认输"] %}
+        <button>
+            {{ text }}
+        </button>
+    {% endfor %}
+{% endblock %}

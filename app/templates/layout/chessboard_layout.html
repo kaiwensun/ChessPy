@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>{% block title %}{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ utils.static_url_for('lib/bootstrap/css/bootstrap.min.css') }}" />
+    <link rel="stylesheet" href="{{ utils.static_url_for('css/main.css') }}" />
+    <link rel="stylesheet" href="{{ utils.static_url_for('css/modal.css') }}" />
+    <link rel="stylesheet" href="{{ utils.static_url_for('css/chessboard.css') }}" />
+    <link rel="stylesheet" href="{{ utils.static_url_for('css/button.css') }}" />
+    {% block css %}
+    {% endblock %}
+</head>
+<body>
+    <div id="root">
+        <div id="header">
+            {% block header %}
+            {% endblock %}
+        </div>
+        <div id="content">
+            <div id="chessboard-container">
+                <div id="chessboard">
+                    <img id="chessboard-lines" src="/static/images/chess-board.png" />
+                    {% block chessboard %}
+                    {% endblock %}
+                </div>
+            </div>
+            <div class="below-board-buttons">
+                {% block below_board_buttons %}
+                {% endblock %}
+            </div>
+        </div>
+        <div id="footer">
+            <p>
+                Author: Kaiwen Sun
+            </p>
+        </div>
+    </div>
+
+    <script src="{{ utils.static_url_for('lib/jquery/jquery-3.3.1.min.js') }}"></script>
+    <script src="{{ utils.static_url_for('lib/bootstrap/js/bootstrap.min.js') }}"></script>
+    <script src="{{ utils.static_url_for('lib/bootbox/bootbox.min.js') }}"></script>
+    <script src="{{ utils.static_url_for('js/utils.js') }}"></script>
+    {% block js %}
+    {% endblock %}
+</body>
+</html>
