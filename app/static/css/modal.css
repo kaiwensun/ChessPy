@@ -1,0 +1,20 @@
+.bootbox.modal .modal-content::after {
+
+    content: "";
+    display: block;
+    position: absolute;
+    background: url("/static/images/paint-bamboo-mountain.png");
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    opacity: 0.2;
+    background-repeat: no-repeat;
+    background-size: cover;
+    z-index: 0;
+}
+.modal-body, .modal-footer {
+    z-index: 1;
+}
