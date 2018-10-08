@@ -23,7 +23,12 @@
                         label: "{{ utils.gettext('Sign up') }}",
                         className: "btn-primary",
                         callback: function() {
-                            alert("submitting the form......")
+                            if(!$('#sign-up-form').valid()) {
+                                return false;
+                            } else {
+                                bootbox.hideAll();
+                                $('#sign-up-form').submit();
+                            }
                         }
                     }
                 }

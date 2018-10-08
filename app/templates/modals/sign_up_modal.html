@@ -15,11 +15,11 @@
         min-height: 75px;
     }
 </style>
-<form id="sign-up-form">
+<form id="sign-up-form" action="{{ url_for('auth.sign_up') }}" method="post">
     {% for field in [form.username, form.email, form.password, form.password_confirm] %}
         <div class="item">
             {{ field.label }}
-            {{ field() }}
+            {{ utils.render_field(field) }}
         </div>
     {% endfor %}
 </form>

@@ -1,6 +1,6 @@
-from wtforms import Form, StringField, PasswordField, validators, StringField
+from wtforms import Form, StringField, PasswordField, StringField, validators
+from wtforms.fields.html5 import EmailField
 from app.shared import utils
-
 
 class SignUpForm(Form):
     username = StringField(
@@ -9,7 +9,7 @@ class SignUpForm(Form):
          validators.Length(3, 32, utils.gettext(
             "user name must be between 3 and 32 charactors long"))],
         render_kw={"placeholder": utils.gettext("Your name")})
-    email = StringField(
+    email = EmailField(
         utils.gettext("Email"),
         [validators.InputRequired(utils.gettext("email is required")),
          validators.Email(utils.gettext("your email is requried"))],

@@ -6,6 +6,7 @@ from flask import request
 from app.views.game.views import bp as game_bp
 from app.views.control.views import bp as control_bp
 from app.views.modals.views import bp as modals_bp
+from app.views.auth.views import bp as auth_bp
 from app.shared import utils
 from config import settings
 
@@ -20,6 +21,7 @@ app = Flask(__name__)
 app.register_blueprint(game_bp, url_prefix='/game')
 app.register_blueprint(control_bp, url_prefix='/control')
 app.register_blueprint(modals_bp, url_prefix='/modals')
+app.register_blueprint(auth_bp, url_prefix='/auth')
 
 app.add_template_global(name="utils", f=utils)
 

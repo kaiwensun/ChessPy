@@ -42,6 +42,13 @@
     <script src="{{ utils.static_url_for('lib/jquery/jquery-3.3.1.min.js') }}"></script>
     <script src="{{ utils.static_url_for('lib/bootstrap/js/bootstrap.min.js') }}"></script>
     <script src="{{ utils.static_url_for('lib/bootbox/bootbox.min.js') }}"></script>
+    <script src="{{ utils.static_url_for('lib/jquery-validation/jquery.validate.min.js') }}"></script>
+    {% set locale = utils.get_locale() %}
+    {% if locale == 'zh_CN' %}
+        <script src="{{ utils.static_url_for('lib/jquery-validation/localization/messages_zh.min.js') }}"></script>
+    {% elif locale == 'zh_TW' %}
+        <script src="{{ utils.static_url_for('lib/jquery-validation/localization/messages_zh_TW.min.js') }}"></script>
+    {% endif %}
     <script src="{{ utils.static_url_for('js/utils.js') }}"></script>
     {% block js %}
     {% endblock %}
