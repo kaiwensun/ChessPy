@@ -5,18 +5,13 @@
 {% endblock %}
 
 {% block header %}
-    {{ gettext('Chinese Chess') }}
+    {{ utils.gettext('Chinese Chess') }}
 {% endblock %}
 
 {% block below_board_buttons %}
-    {% set button_texts = [
-        gettext("New game"),
-        gettext("Undo"),
-        gettext("Negotiate"),
-        gettext("Admit defeat")] %}
-    {% for text in button_texts %}
+    {% for text in ["New game", "Undo", "Negotiate", "Admit defeat"] %}
         <button>
-            {{ text }}
+            {{ utils.gettext(text) }}
         </button>
     {% endfor %}
 {% endblock %}

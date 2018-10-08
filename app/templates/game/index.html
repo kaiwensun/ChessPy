@@ -10,7 +10,7 @@
                     showSignUpModal(html)
                 },
                 error: function() {
-                    window.chessPy.alert("{{ gettext('Oops! Something went wrong!') }}");
+                    window.chessPy.alert("{{ utils.gettext('Oops! Something went wrong!') }}");
                 }
             });
         })
@@ -20,7 +20,7 @@
                 size: "small",
                 buttons: {
                     signup: {
-                        label: "{{ gettext('Sign up') }}",
+                        label: "{{ utils.gettext('Sign up') }}",
                         className: "btn-primary",
                         callback: function() {
                             alert("submitting the form......")
@@ -33,14 +33,14 @@
 {% endblock %}
 
 {% block header %}
-    {{ gettext('Chinese Chess') }}
+    {{ utils.gettext('Chinese Chess') }}
 {% endblock %}
 
 {% block below_board_buttons %}
     <button type="button" class="btn btn-primary sign-in">
-        {{ gettext('Sign in') }}
+        {{ utils.gettext('Sign in') }}
     </button>
     <button type="button" class="btn btn-primary sign-up">
-        {{ gettext('Sign up') }}
+        {{ utils.gettext('Sign %s', 'up') }}
     </button>
 {% endblock %}
