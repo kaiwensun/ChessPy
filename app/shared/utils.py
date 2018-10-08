@@ -5,6 +5,7 @@ from flask import request
 
 from app import translations
 
+
 def timestamp(fmt="%Y%m%d"):
     return datetime.datetime.utcnow().strftime(fmt)
 
@@ -12,13 +13,16 @@ def timestamp(fmt="%Y%m%d"):
 def _statics_version():
     return timestamp()[:-1] + '0'
 
+
 def static_url_for(filename):
     return url_for('static',
-                    filename=filename,
-                    statics_version=_statics_version())
+                   filename=filename,
+                   statics_version=_statics_version())
+
 
 def gettext(string, *args):
     return LazyString(_translator, string, *args)
+
 
 def _translator(string, *args):
     locale = _get_locale()
@@ -29,6 +33,7 @@ def _translator(string, *args):
     else:
         return translated_string
 
+
 def _get_locale():
     if request:
         loc = request.accept_languages.best_match(['zh_CN', 'zh_TW'])
@@ -37,6 +42,7 @@ def _get_locale():
         return loc
     else:
         return None
+
 
 class LazyString(str):
     def __new__(cls, value, *args, **kwargs):

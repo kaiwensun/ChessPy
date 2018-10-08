@@ -13,8 +13,6 @@ from config import settings
 # from flask_sqlalchemy import SQLAlchemy
 
 
-
-
 os.environ['FLASK_ENV'] = settings.ENV
 
 app = Flask(__name__)
