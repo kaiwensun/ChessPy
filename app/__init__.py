@@ -2,14 +2,12 @@ import os
 
 from flask import Flask
 from flask import request
-from flask_babel import Babel
-
-from config import settings
 
 from app.views.game.views import bp as game_bp
 from app.views.control.views import bp as control_bp
 from app.views.modals.views import bp as modals_bp
 from app.shared import utils
+from config import settings
 
 
 # from flask_sqlalchemy import SQLAlchemy
@@ -25,17 +23,7 @@ app.register_blueprint(game_bp, url_prefix='/game')
 app.register_blueprint(control_bp, url_prefix='/control')
 app.register_blueprint(modals_bp, url_prefix='/modals')
 
-app.jinja_env.globals.update(utils=utils)
-
-babel = Babel(app)
-
-@babel.localeselector
-def get_locale():
-    return 'zh_TW'
-    loc = request.accept_languages.best_match(['zh_CN', 'zh_TW'])
-    loc = loc or request.accept_languages.best_match(['zh'])
-    loc = loc or request.accept_languages.best_match(['en'])
-    return loc
+app.add_template_global(name="utils", f=utils)
 
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/database.sqlite3'
 # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
