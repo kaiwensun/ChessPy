@@ -11,17 +11,17 @@ class SignUpForm(Form):
         render_kw={"placeholder": utils.gettext("Your name")})
     email = EmailField(
         utils.gettext("Email"),
-        [validators.InputRequired(utils.gettext("email is required")),
+        [validators.DataRequired(utils.gettext("email is required")),
          validators.Email(utils.gettext("your email is requried"))],
         render_kw={"placeholder": utils.gettext("Your email address")})
     password = PasswordField(
         utils.gettext("Password"),
         [validators.Length(8, 32, utils.gettext(
             "password must be between 8 and 32 charactors long")),
-         validators.InputRequired(utils.gettext("password is required"))])
+         validators.DataRequired(utils.gettext("password is required"))])
     password_confirm = PasswordField(
         utils.gettext("Repeat password"),
-        [validators.InputRequired(utils.gettext(
+        [validators.DataRequired(utils.gettext(
             "please confirm your password")),
          validators.EqualTo("password", message=utils.gettext(
             "password must match"))])
