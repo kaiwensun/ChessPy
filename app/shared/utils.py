@@ -4,6 +4,7 @@ from flask import url_for
 from flask import request
 
 from app import translations
+from .field_renderer import field_renderer
 
 
 def timestamp(fmt="%Y%m%d"):
@@ -25,7 +26,7 @@ def gettext(string, *args):
 
 
 def _translator(string, *args):
-    locale = _get_locale()
+    locale = get_locale()
     dictionary = translations.get_dicts().get(locale, {})
     translated_string = dictionary.get(string, string)
     if args:
@@ -34,7 +35,7 @@ def _translator(string, *args):
         return translated_string
 
 
-def _get_locale():
+def get_locale():
     if request:
         loc = request.accept_languages.best_match(['zh_CN', 'zh_TW'])
         loc = loc or request.accept_languages.best_match(['zh'])
@@ -62,3 +63,7 @@ class LazyString(str):
 
     def __str__(self):
         return self.func(self.string, *self.args)
+
+
+def render_field(field, *args, **kwargs):
+    return field_renderer(field, *args, **kwargs)

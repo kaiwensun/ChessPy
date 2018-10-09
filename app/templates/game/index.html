@@ -23,10 +23,21 @@
                         label: "{{ utils.gettext('Sign up') }}",
                         className: "btn-primary",
                         callback: function() {
-                            alert("submitting the form......")
+                            if(!$('#sign-up-form').valid()) {
+                                return false;
+                            } else {
+                                bootbox.hideAll();
+                                $('#sign-up-form').submit();
+                            }
                         }
                     }
                 }
+            }).on('shown.bs.modal', function() {
+                $('#sign-up-form input').on('keypress', function(evt) {
+                    if (evt.which == 13) {
+                        $(this).closest('.modal-content').find('button[data-bb-handler="signup"]').click();
+                    }
+                });
             })
         }
     </script>
