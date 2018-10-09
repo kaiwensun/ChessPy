@@ -2,12 +2,13 @@ from wtforms import Form, StringField, PasswordField, StringField, validators
 from wtforms.fields.html5 import EmailField
 from app.shared import utils
 
+
 class SignUpForm(Form):
     username = StringField(
         utils.gettext("User name"),
         [validators.DataRequired(utils.gettext("user name is required")),
          validators.Length(3, 32, utils.gettext(
-            "user name must be between 3 and 32 charactors long"))],
+             "user name must be between 3 and 32 charactors long"))],
         render_kw={"placeholder": utils.gettext("Your name")})
     email = EmailField(
         utils.gettext("Email"),
@@ -24,4 +25,4 @@ class SignUpForm(Form):
         [validators.DataRequired(utils.gettext(
             "please confirm your password")),
          validators.EqualTo("password", message=utils.gettext(
-            "password must match"))])
+             "password must match"))])

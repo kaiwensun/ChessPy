@@ -4,6 +4,7 @@ from flask import url_for
 from flask import request
 
 from app import translations
+from .field_renderer import field_renderer
 
 
 def timestamp(fmt="%Y%m%d"):
@@ -63,6 +64,6 @@ class LazyString(str):
     def __str__(self):
         return self.func(self.string, *self.args)
 
-from app.shared.field_renderer import field_renderer
+
 def render_field(field, *args, **kwargs):
     return field_renderer(field, *args, **kwargs)

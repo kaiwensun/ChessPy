@@ -1,5 +1,6 @@
 from wtforms.validators import DataRequired, Length
 
+
 def field_renderer(field, *args, **kwargs):
     field.render_kw = field.render_kw or {}
     for validator in field.validators:
@@ -14,6 +15,7 @@ def add_attr_DataRequired(field, validator):
     if validator.message:
         field.render_kw['data-msg-required'] = validator.message
 
+
 def add_attr_Length(field, validator):
     if validator.min >= 0:
         field.render_kw['minlength'] = max(
@@ -26,9 +28,11 @@ def add_attr_Length(field, validator):
         if validator.message:
             field.render_kw['data-msg-maxlength'] = validator.message
 
+
 def log_new_validator(field, validator):
     print('Warning: Unhandled validator {} of field {}'.format(
         type(validator).__name__, field.id))
+
 
 # TODO: Add more add_attr_xxx functions
 _validator_mapping = {
