@@ -21,5 +21,6 @@ DICT = {
     "password is required": "請輸入密碼",
     "Repeat password": "重複密碼",
     "please confirm your password": "請確認密碼",
-    "password must match": "密碼不吻合"
+    "password must match": "密碼不吻合",
+    "password incorrect": "密碼不正確"
 }

@@ -6,11 +6,21 @@ bp = Blueprint(__name__.split('.')[2], __name__)
 
 @bp.route('/sign-in-modal')
 def sign_in_modal():
-    return render_template('modals/sign_in_modal.html',
-                           form=membership_forms.SignUpForm())
+    return render_template('modals/authentication.html',
+                           form=membership_forms.SignInForm(),
+                           form_id='sign-in-form',
+                           action_endpoint='membership.sign_in',
+                           field_names=['email', 'password'],
+                           button_text='Sign in')
 
 
 @bp.route('/sign-up-modal')
 def sign_up_modal():
-    return render_template('modals/sign_up_modal.html',
-                           form=membership_forms.SignUpForm())
+    return render_template('modals/authentication.html',
+                           form=membership_forms.SignUpForm(),
+                           form_id='sign-up-form',
+                           action_endpoint='membership.sign_up',
+                           field_names=[
+                               'username', 'email', 'password',
+                               'password_confirm'],
+                           button_text='Sign up')

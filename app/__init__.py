@@ -3,6 +3,7 @@ import os
 from flask import Flask
 from flask import request
 from flask_login import LoginManager
+from flask_wtf.csrf import CSRFProtect
 
 from app.views.game.views import bp as game_bp
 from app.views.control.views import bp as control_bp
@@ -18,6 +19,7 @@ from config import settings
 os.environ['FLASK_ENV'] = settings.ENV
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = settings.FLASK_APP_SECRET_KEY
 
 # Blueprints
 app.register_blueprint(game_bp, url_prefix='/game')
@@ -30,6 +32,9 @@ app.add_template_global(name="utils", f=utils)
 
 # Login manager
 login_manager = LoginManager(app)
+
+# Flask-WTF CSRF
+csrf = CSRFProtect(app)
 
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/database.sqlite3'
 # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False

@@ -1,30 +1,42 @@
 import hashlib
 import hmac
 import datetime
+import uuid
 
 _USER_DATABASE = {}
-_USER_INCREMENTER = len(_USER_DATABASE)
 
 
 def get_user(id):
     user = _USER_DATABASE.get(id)
-    del user['hashed_pw']
-    return user
+    if user:
+        user_copy = user.copy()
+        del user_copy['hashed_pw']
+        return user_copy
+    return None
+
+
+def get_user_by_email(email):
+    users = filter(
+        lambda user: user['email'] == email,
+        _USER_DATABASE.values())
+    for user in users:
+        user_copy = user.copy()
+        del user_copy['hashed_pw']
+        return user_copy
+    return None
 
 
 def create_user(name, email, password):
-    global _USER_INCREMENTER
     for user in _USER_DATABASE.values():
         if user['email'] == email:
             return None
     user = {
-        'id': str(_USER_INCREMENTER),
+        'id': uuid.uuid4().hex,
         'name': name,
         'email': email,
         'hashed_pw': _hash(password)
     }
-    _USER_DATABASE[str(_USER_INCREMENTER)] = user
-    _USER_INCREMENTER += 1
+    _USER_DATABASE[user['id']] = user
     return user
 
 
@@ -44,4 +56,4 @@ def _hash(string):
 
 
 # Create an existing user
-create_user('Kaiwen Sun', 'kaiwen@fake_data.com', 'password1')
+create_user('Kaiwen Sun', 'kaiwen@fakedata.com', 'password1')

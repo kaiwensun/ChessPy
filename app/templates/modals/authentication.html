@@ -1,12 +1,12 @@
 <style>
-    #sign-up-form {
+    #{{ form_id }} {
         display: flex;
         flex-flow: column nowrap;
         align-items: center;
         justify-content: space-around;
         width: 100%;
     }
-    #sign-up-form .item {
+    #{{ form_id }} .item {
         display: flex;
         flex-flow: column nowrap;
         align-items: stretch;
@@ -15,9 +15,11 @@
         min-height: 75px;
     }
 </style>
-<form id="sign-up-form" action="{{ url_for('membership.sign_up') }}" method="post">
-    {% for field in [form.username, form.email, form.password, form.password_confirm] %}
+<form id="{{ form_id }}" action="{{ url_for(action_endpoint) }}" method="post" data-button-text="{{ utils.gettext(button_text) }}">
+    {{ form.csrf_token() }}
+    {% for field_name in field_names %}
         <div class="item">
+            {% set field = form[field_name] %}
             {{ field.label }}
             {{ utils.render_field(field) }}
         </div>
