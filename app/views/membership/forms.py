@@ -1,9 +1,10 @@
-from wtforms import Form, StringField, PasswordField, StringField, validators
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, StringField, validators
 from wtforms.fields.html5 import EmailField
 from app.shared import utils
 
 
-class SignUpForm(Form):
+class SignUpForm(FlaskForm):
     username = StringField(
         utils.gettext("User name"),
         [validators.DataRequired(utils.gettext("user name is required")),
@@ -26,3 +27,16 @@ class SignUpForm(Form):
             "please confirm your password")),
          validators.EqualTo("password", message=utils.gettext(
              "password must match"))])
+
+
+class SignInForm(FlaskForm):
+    email = EmailField(
+        utils.gettext("Email"),
+        [validators.DataRequired(utils.gettext("email is required")),
+         validators.Email(utils.gettext("your email is requried"))],
+        render_kw={"placeholder": utils.gettext("Your email address")})
+    password = PasswordField(
+        utils.gettext("Password"),
+        [validators.Length(8, 32, utils.gettext(
+            "password incorrect")),
+         validators.DataRequired(utils.gettext("password is required"))])

@@ -2,40 +2,44 @@
 
 {% block js %}
     <script>
-        $("button.sign-up").on("click", function() {
+        $("button.sign-up, button.sign-in").on("click", function() {
+            var $button = $(this);
             $.ajax({
                 method: 'GET',
-                url: "{{ url_for('modals.sign_up_modal')}}",
+                url: $button.data("form-url"),
                 success: function(html) {
-                    showSignUpModal(html)
+                    showAuthModal(html)
                 },
                 error: function() {
                     window.chessPy.alert("{{ utils.gettext('Oops! Something went wrong!') }}");
                 }
             });
         })
-        function showSignUpModal(html) {
+        function showAuthModal(html) {
+            var $wrapper = $('<div/>').html(html);
+            var $form = $wrapper.find('form');
+            var formId = "#" + $form.attr("id");
             bootbox.dialog({
                 message: html,
                 size: "small",
                 buttons: {
                     signup: {
-                        label: "{{ utils.gettext('Sign up') }}",
+                        label: $form.data("button-text"),
                         className: "btn-primary",
                         callback: function() {
-                            if(!$('#sign-up-form').valid()) {
+                            if(!$(formId).valid()) {
                                 return false;
                             } else {
                                 bootbox.hideAll();
-                                $('#sign-up-form').submit();
+                                $(formId).submit();
                             }
                         }
                     }
                 }
             }).on('shown.bs.modal', function() {
-                $('#sign-up-form input').on('keypress', function(evt) {
+                $(formId).find("input").on('keypress', function(evt) {
                     if (evt.which == 13) {
-                        $(this).closest('.modal-content').find('button[data-bb-handler="signup"]').click();
+                        $(this).closest('.modal-content').find('.btn-primary').click();
                     }
                 });
             })
@@ -48,10 +52,10 @@
 {% endblock %}
 
 {% block below_board_buttons %}
-    <button type="button" class="btn btn-primary sign-in">
+    <button type="button" class="btn btn-primary sign-in" data-form-url="{{ url_for('modals.sign_in_modal') }}">
         {{ utils.gettext('Sign in') }}
     </button>
-    <button type="button" class="btn btn-primary sign-up">
-        {{ utils.gettext('Sign %s', 'up') }}
+    <button type="button" class="btn btn-primary sign-up" data-form-url="{{ url_for('modals.sign_up_modal') }}">
+        {{ utils.gettext('Sign up') }}
     </button>
 {% endblock %}
