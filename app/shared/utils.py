@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 
 from flask import url_for
 from flask import request
@@ -8,7 +8,7 @@ from .field_renderer import field_renderer
 
 
 def timestamp(fmt="%Y%m%d"):
-    return datetime.datetime.utcnow().strftime(fmt)
+    return datetime.utcnow().strftime(fmt)
 
 
 def _statics_version():

@@ -1,6 +1,11 @@
 from flask import Blueprint
 from flask import request
 from flask import jsonify
+from flask import session
+from flask import redirect
+from flask import url_for
+
+import flask_login
 
 from app.svc.membership import fake_driver as membership_driver
 from . import forms
@@ -29,6 +34,8 @@ def sign_in():
     user = membership_driver.get_user_by_email(form.email.data)
     if not user:
         return 'sign in error 2'
-    if not membership_driver.verify_user(user['id'], form.password.data):
+    if not membership_driver.verify_user(user.user_id, form.password.data):
         return 'sign in error 3'
-    return jsonify(user)
+    if not flask_login.login_user(user, remember=True):
+        return 'sign in error 4'
+    return redirect(url_for('game.index'))

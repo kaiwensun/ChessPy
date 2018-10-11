@@ -49,6 +49,10 @@
 
 {% block header %}
     {{ utils.gettext('Chinese Chess') }}
+    {% if current_user.is_authenticated %}
+        {{ utils.gettext('Hi, ') }}
+        {{ current_user.name }}
+    {% endif %}
 {% endblock %}
 
 {% block below_board_buttons %}
