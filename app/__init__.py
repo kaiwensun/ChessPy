@@ -9,6 +9,9 @@ from app.views.game.views import bp as game_bp
 from app.views.control.views import bp as control_bp
 from app.views.modals.views import bp as modals_bp
 from app.views.membership.views import bp as membership_bp
+
+from app.svc.membership import fake_driver as membership_driver
+
 from app.shared import utils
 from config import settings
 
@@ -32,6 +35,7 @@ app.add_template_global(name="utils", f=utils)
 
 # Login manager
 login_manager = LoginManager(app)
+login_manager.user_loader(membership_driver.get_user_by_alternative_id)
 
 # Flask-WTF CSRF
 csrf = CSRFProtect(app)
