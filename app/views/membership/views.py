@@ -7,7 +7,7 @@ from flask import url_for
 
 import flask_login
 
-from app.svc.membership import fake_driver as membership_driver
+from app.svc.membership import driver as membership_driver
 from . import forms
 
 bp = Blueprint(__name__.split('.')[2], __name__)

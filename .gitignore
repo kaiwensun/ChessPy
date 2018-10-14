@@ -3,3 +3,4 @@
 .venv
 .vscode
 local_settings.py
+DB
