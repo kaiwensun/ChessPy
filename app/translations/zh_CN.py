@@ -23,5 +23,7 @@ DICT = {
     "please confirm your password": "请确认密码",
     "password must match": "密码不吻合",
     "password incorrect": "密码不正确",
-    "Hi, ": "你好，"
+    "Hi, ": "你好，",
+    "Sign out": "退出登录",
+    "See you next time!": "下次见！"
 }

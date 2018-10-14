@@ -40,3 +40,7 @@ class SignInForm(FlaskForm):
         [validators.Length(8, 32, utils.gettext(
             "password incorrect")),
          validators.DataRequired(utils.gettext("password is required"))])
+
+
+class SignOutForm(FlaskForm):
+    pass

@@ -22,7 +22,7 @@ def static_url_for(filename):
 
 
 def gettext(string, *args):
-    return LazyString(_translator, string, *args)
+    return LazyString(_translator, string, *args) if string else ""
 
 
 def _translator(string, *args):
