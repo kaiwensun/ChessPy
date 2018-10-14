@@ -23,7 +23,7 @@ def sign_up():
     if user:
         if not flask_login.login_user(user, remember=True):
             return 'sign in error 4'
-        return redirect(url_for('game.index'))
+        return redirect(url_for('site.index'))
     else:
         return 'sign up error 2 (already have an account)'
 
@@ -40,7 +40,7 @@ def sign_in():
         return 'sign in error 3'
     if not flask_login.login_user(user, remember=True):
         return 'sign in error 4'
-    return redirect(url_for('game.index'))
+    return redirect(url_for('site.index'))
 
 
 @bp.route('sign-out', methods=["POST"])
@@ -49,4 +49,4 @@ def sign_out():
     if not form.validate_on_submit():
         return 'sign out error 1'
     flask_login.logout_user()
-    return redirect(url_for('game.index'))
+    return redirect(url_for('site.index'))

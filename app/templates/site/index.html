@@ -56,8 +56,9 @@
 {% endblock %}
 
 {% block below_board_buttons %}
+    <a type="button" class="btn btn-primary start-game" href="{{ url_for('site.play') }}"> New Game </a>
     {% if current_user.is_authenticated %}
-        <button type="submit" class="btn btn-primary sign-out" data-form-url="{{ url_for('modals.sign_out_modal') }}">
+        <button type="button" class="btn btn-primary sign-out" data-form-url="{{ url_for('modals.sign_out_modal') }}">
             {{ utils.gettext('Sign out') }}
         </button>
     {% else %}
