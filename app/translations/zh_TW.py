@@ -5,8 +5,8 @@ DICT = {
     "Sign in": "登入",
     "New game": "開始遊戲",
     "Undo": "悔棋",
-    "Negotiate": "求和",
-    "Admit defeat": "認輸",
+    "Draw": "求和",
+    "Surrender": "認輸",
     "Author: Kaiwen Sun": "作者：孫楷文",
     "User name": "用戶名",
     "user name is required": "請輸入用戶名",
@@ -23,7 +23,9 @@ DICT = {
     "please confirm your password": "請確認密碼",
     "password must match": "密碼不吻合",
     "password incorrect": "密碼不正確",
-    "Hi, ": "你好，",
+    "Hi, %s!": "你好，%s！",
     "Sign out": "登出",
-    "See you next time!": "下次見！"
+    "See you next time!": "下次見！",
+    "Anonymous hero": "無名英雄",
+    "Go back": "返回"
 }

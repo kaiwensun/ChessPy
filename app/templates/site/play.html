@@ -1,17 +1,22 @@
 {% extends "layout/chessboard_layout.html" %}
 
 {% block css %}
-    
 {% endblock %}
 
 {% block header %}
-    {{ utils.gettext('Chinese Chess') }}
 {% endblock %}
 
 {% block below_board_buttons %}
-    {% for text in ["New game", "Undo", "Negotiate", "Admit defeat"] %}
-        <button>
-            {{ utils.gettext(text) }}
-        </button>
-    {% endfor %}
+    <button type="button" class="btn btn-primary undo">
+        {{ utils.gettext('Undo') }}
+    </button>
+    <button type="button" class="btn btn-primary draw">
+        {{ utils.gettext('Draw') }}
+    </button>
+    <button type="button" class="btn btn-primary surrender">
+        {{ utils.gettext('Surrender') }}
+    </button>
+    <a role="button" class="btn btn-primary go-back" href="{{ url_for('site.index') }}">
+        {{ utils.gettext('Go back')}}
+    </a>
 {% endblock %}

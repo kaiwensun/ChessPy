@@ -48,16 +48,11 @@
 {% endblock %}
 
 {% block header %}
-    {{ utils.gettext('Chinese Chess') }}
-    {% if current_user.is_authenticated %}
-        {{ utils.gettext('Hi, ') }}
-        {{ current_user.name }}
-    {% endif %}
 {% endblock %}
 
 {% block below_board_buttons %}
+    <a role="button" class="btn btn-primary start-game" href="{{ url_for('site.play') }}"> {{ utils.gettext('New game') }} </a>
     {% if current_user.is_authenticated %}
-        <a type="button" class="btn btn-primary start-game" href="{{ url_for('site.play') }}"> {{ utils.gettext('New game') }} </a>
         <button type="button" class="btn btn-primary sign-out" data-form-url="{{ url_for('modals.sign_out_modal') }}">
             {{ utils.gettext('Sign out') }}
         </button>

@@ -30,7 +30,7 @@ def _translator(string, *args):
     dictionary = translations.get_dicts().get(locale, {})
     translated_string = dictionary.get(string, string)
     if args:
-        return dictionary.get(translated_string % args)
+        return translated_string % args
     else:
         return translated_string
 
