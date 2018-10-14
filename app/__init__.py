@@ -36,18 +36,9 @@ login_manager.init_app(app)
 # Flask-WTF CSRF
 csrf.init_app(app)
 
-
 # SQL Alchemy
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///../DB/database.sqlite3'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
-
-# class students(db.Model):
-#    id = db.Column('student_id', db.Integer, primary_key = True)
-#    name = db.Column(db.String(100))
-#    city = db.Column(db.String(50))
-#    addr = db.Column(db.String(200))
-#    pin = db.Column(db.String(10))
-
 with app.app_context():
     db.create_all()
