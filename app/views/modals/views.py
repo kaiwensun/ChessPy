@@ -24,3 +24,14 @@ def sign_up_modal():
                                'username', 'email', 'password',
                                'password_confirm'],
                            button_text='Sign up')
+
+
+@bp.route('/sign-out-modal')
+def sign_out_modal():
+    return render_template('modals/authentication.html',
+                           message="See you next time!",
+                           form=membership_forms.SignOutForm(),
+                           form_id='sign-up-form',
+                           action_endpoint='membership.sign_out',
+                           field_names=[],
+                           button_text='Sign out')

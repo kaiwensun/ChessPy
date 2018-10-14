@@ -2,7 +2,7 @@
 
 {% block js %}
     <script>
-        $("button.sign-up, button.sign-in").on("click", function() {
+        $("button.sign-up, button.sign-in, button.sign-out").on("click", function() {
             var $button = $(this);
             $.ajax({
                 method: 'GET',
@@ -56,10 +56,17 @@
 {% endblock %}
 
 {% block below_board_buttons %}
-    <button type="button" class="btn btn-primary sign-in" data-form-url="{{ url_for('modals.sign_in_modal') }}">
-        {{ utils.gettext('Sign in') }}
-    </button>
-    <button type="button" class="btn btn-primary sign-up" data-form-url="{{ url_for('modals.sign_up_modal') }}">
-        {{ utils.gettext('Sign up') }}
-    </button>
+    {% if current_user.is_authenticated %}
+        <a type="button" class="btn btn-primary start-game" href="{{ url_for('site.play') }}"> {{ utils.gettext('New game') }} </a>
+        <button type="button" class="btn btn-primary sign-out" data-form-url="{{ url_for('modals.sign_out_modal') }}">
+            {{ utils.gettext('Sign out') }}
+        </button>
+    {% else %}
+        <button type="button" class="btn btn-primary sign-in" data-form-url="{{ url_for('modals.sign_in_modal') }}">
+            {{ utils.gettext('Sign in') }}
+        </button>
+        <button type="button" class="btn btn-primary sign-up" data-form-url="{{ url_for('modals.sign_up_modal') }}">
+            {{ utils.gettext('Sign up') }}
+        </button>
+    {% endif %}
 {% endblock %}

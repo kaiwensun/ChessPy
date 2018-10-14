@@ -7,7 +7,7 @@ from flask import url_for
 
 import flask_login
 
-from app.svc.membership import fake_driver as membership_driver
+from app.svc.membership import driver as membership_driver
 from . import forms
 
 bp = Blueprint(__name__.split('.')[2], __name__)
@@ -16,14 +16,16 @@ bp = Blueprint(__name__.split('.')[2], __name__)
 @bp.route('sign-up', methods=['POST'])
 def sign_up():
     form = forms.SignUpForm()
-    # TODO: implement post sign in page
     if not form.validate_on_submit():
         return 'sign up error 1'
-    if membership_driver.create_user(
-            form.username.data, form.email.data, form.password.data):
-        return 'sign up OK'
+    user = membership_driver.create_user(
+        form.username.data, form.email.data, form.password.data)
+    if user:
+        if not flask_login.login_user(user, remember=True):
+            return 'sign in error 4'
+        return redirect(url_for('site.index'))
     else:
-        return 'sign up error 2'
+        return 'sign up error 2 (already have an account)'
 
 
 @bp.route('sign-in', methods=['POST'])
@@ -38,4 +40,13 @@ def sign_in():
         return 'sign in error 3'
     if not flask_login.login_user(user, remember=True):
         return 'sign in error 4'
-    return redirect(url_for('game.index'))
+    return redirect(url_for('site.index'))
+
+
+@bp.route('sign-out', methods=["POST"])
+def sign_out():
+    form = forms.SignOutForm()
+    if not form.validate_on_submit():
+        return 'sign out error 1'
+    flask_login.logout_user()
+    return redirect(url_for('site.index'))
