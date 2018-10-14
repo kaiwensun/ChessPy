@@ -16,6 +16,10 @@
 <body>
     <div id="root">
         <div id="header">
+            {{ utils.gettext('Chinese Chess') }}
+            {% if current_user.name %}
+                {{ utils.gettext('Hi, %s!', current_user.name) }}
+            {% endif %}
             {% block header %}
             {% endblock %}
         </div>

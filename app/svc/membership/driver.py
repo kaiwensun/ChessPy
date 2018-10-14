@@ -37,6 +37,29 @@ class SignedInUser(flask_login.UserMixin):
         return self._dict.copy()
 
 
+class AnonymousUser(flask_login.AnonymousUserMixin):
+    def __init__(self):
+        super().__init__()
+        now = utils.timestamp(_TIME_FORMAT_)
+        self.name = utils.gettext('Anonymous hero')
+        self.user_id = uuid.uuid4().hex
+        self.created_at = now
+        self._alternative_id = "{}{}{}".format(
+            self.user_id, _ALT_ID_SPLITER_, now)
+
+    def get_id(self):
+        return self._alternative_id
+
+    def _to_dict(self):
+        return {
+            'user_id': self.user_id,
+            'created_at': self.created_at
+        }
+
+
+login_manager.anonymous_user = AnonymousUser
+
+
 def get_user(user_id):
     user = User.query.get(user_id)
     if user:
