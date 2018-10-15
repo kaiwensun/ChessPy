@@ -50,8 +50,31 @@
 {% block header %}
 {% endblock %}
 
+{% block css %}
+    <style>
+        .below-board-buttons > form,
+        .below-board-buttons > button {
+            flex-basis: 24%;
+            white-space: normal;
+            display: block;
+        }
+        .below-board-buttons > form button {
+            max-width: 100%;
+            white-space: normal;
+        }
+    </style>
+{% endblock %}
+
 {% block below_board_buttons %}
-    <a role="button" class="btn btn-primary start-game" href="{{ url_for('site.play') }}"> {{ utils.gettext('New game') }} </a>
+    <form action="{{ url_for('match.create_match') }}" method="post">
+        {{ create_match_form.csrf_token() }}
+        <button type="submit" class="btn btn-primary random-new-game" data-form-url="{{ url_for('modals.sign_out_modal') }}">
+            {{ utils.gettext('New game') }}
+        </button>
+    </form>
+    <button type="button" class="btn btn-primary random-new-game" data-form-url="{{ url_for('modals.sign_out_modal') }}">
+        {{ utils.gettext('Private game') }}
+    </button>
     {% if current_user.is_authenticated %}
         <button type="button" class="btn btn-primary sign-out" data-form-url="{{ url_for('modals.sign_out_modal') }}">
             {{ utils.gettext('Sign out') }}
