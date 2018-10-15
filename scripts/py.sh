@@ -1,11 +1,12 @@
 #!/bin/bash
+set -e
 version=$1
-if [[ $version == "-2" ]]; then
-    python2 "${@:2}"
-elif [ $version == "-3.7" ] && [ hash python3.7 2>/dev/null ]; then
+if [ $version == "-3.7" ] && [ hash python3.7 2>/dev/null ]; then
     python3.7 "${@:2}"
-elif [ ${version:0:2} == "-3" ] && [ hash python3 2>/dev/null ]; then
+elif [ hash python3 2>/dev/null ]; then
+    echo "Warning: python3 is depreciated. Please use python3.7"
     python3 "${@:2}"
 else
-    python "${@:2}"
+    echo "Can't find python3.7"
+    exit 127
 fi
