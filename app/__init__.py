@@ -7,6 +7,7 @@ from app.views.site.views import bp as site_bp
 from app.views.control.views import bp as control_bp
 from app.views.modals.views import bp as modals_bp
 from app.views.membership.views import bp as membership_bp
+from app.views.match.views import bp as match_bp
 
 from app.svc.membership import driver as membership_driver
 from app.flask_ext import db, login_manager, csrf
@@ -25,6 +26,7 @@ app.register_blueprint(site_bp, url_prefix='/')
 app.register_blueprint(control_bp, url_prefix='/control')
 app.register_blueprint(modals_bp, url_prefix='/modals')
 app.register_blueprint(membership_bp, url_prefix='/membership')
+app.register_blueprint(match_bp, url_prefix='/match')
 
 # Global variable
 app.add_template_global(name="utils", f=utils)

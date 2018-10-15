@@ -1,6 +1,11 @@
 activate_venv() {
     if [ ! -d .venv ]; then
-        py -3 -m venv .venv
+        if ! hash pyddd 2>/dev/null ; then
+            py="./scripts/py.sh"
+        else
+            py="py"
+        fi
+        ${py} -3.7 -m venv .venv
     fi
     WIN_VENV_PATH="./.venv/Scripts/activate"
     LINUX_VENV_PATH="./.venv/bin/activate"
