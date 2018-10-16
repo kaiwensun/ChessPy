@@ -2,7 +2,7 @@ import sys
 _NOT_SET_ = "_NOT_SET_"
 
 # These settings can be overridden by local_settings.py
-DEV_PORT_NUMBER = 8888
+PORT_NUMBER = 8888
 DEBUG_MODE = True
 ENV = _NOT_SET_
 FLASK_APP_SECRET_KEY = _NOT_SET_
