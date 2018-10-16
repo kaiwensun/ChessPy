@@ -7,6 +7,15 @@ activate_venv
 
 python -m pip install --upgrade pip
 pip install -r config/requirements.txt
+# install wsgi server
+unameOut="$(uname -s)"
+case "${unameOut}" in
+    Linux*|Darwin*)    pip install -I gunicorn==19.9.0;;
+    CYGWIN*|MINGW*)    pip install -I waitress==1.1.0;;
+    *)                 echo "UNKNOWN:${unameOut}"
+                       exit 1
+esac
+
 for arg in $@
 do
 case "$arg" in
