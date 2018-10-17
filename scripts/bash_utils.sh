@@ -14,3 +14,42 @@ activate_venv() {
         source "${LINUX_VENV_PATH}"
     fi
 }
+
+install_redis() {
+    unameOut="$(uname -s)"
+    case "${unameOut}" in
+        Linux*|Darwin*)    install_linux_redis;;
+        CYGWIN*|MINGW*)    install_windows_redis;;
+        *)                 echo "UNKNOWN:${unameOut}"
+                        exit 1
+    esac
+}
+
+install_windows_redis() {
+    if [ ! -f ./redis/win/redis-server.exe ]; then
+        mkdir -p redis/win
+        pushd redis/win
+        rm -rf *
+        curl 'https://github.com/MicrosoftArchive/redis/releases/download/win-3.0.504/Redis-x64-3.0.504.zip' -O -J -L
+        unzip *.zip
+        rm *.zip *.docx
+        popd
+    fi
+}
+
+install_linux_redis() {
+    if [ ! hash python3.7 2>/dev/null ]; then
+        mkdir -p redis/linux
+        pushd redis/linux
+        rm -rf *
+        wget http://download.redis.io/redis-stable.tar.gz
+        tar xvzf redis-stable.tar.gz
+        rm redis-stable.tar.gz
+        mv redis-stable/* .
+        rm -r redis-stable
+        make
+        pop
+        pop
+    fi
+}
+
