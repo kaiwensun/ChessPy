@@ -16,6 +16,8 @@ case "${unameOut}" in
                        exit 1
 esac
 
+install_redis
+
 for arg in $@
 do
 case "$arg" in

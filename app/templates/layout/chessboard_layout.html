@@ -3,7 +3,13 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>{% block title %}{% endblock %}</title>
+    <title>
+        {% if title %}
+            {{ title }}
+        {% else %}
+            {{ utils.gettext('Chinese Chess') }}
+        {% endif %}
+    </title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="{{ utils.static_url_for('lib/bootstrap/css/bootstrap.min.css') }}" />
     <link rel="stylesheet" href="{{ utils.static_url_for('css/main.css') }}" />
@@ -42,7 +48,7 @@
             </p>
         </div>
     </div>
-
+    <script src="{{ utils.static_url_for('lib/event-source/EventSource.js') }}"></script>
     <script src="{{ utils.static_url_for('lib/jquery/jquery-3.3.1.min.js') }}"></script>
     <script src="{{ utils.static_url_for('lib/bootstrap/js/bootstrap.min.js') }}"></script>
     <script src="{{ utils.static_url_for('lib/bootbox/bootbox.min.js') }}"></script>
