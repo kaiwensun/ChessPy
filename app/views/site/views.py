@@ -21,8 +21,6 @@ def play():
 
 @bp.route('/favicon.ico')
 def favicon():
-    import pdb
-    pdb.set_trace()
     return send_from_directory(
         os.path.join(current_app.root_path, 'static', 'images'),
         'favicon.ico', mimetype='image/vnd.microsoft.icon')
