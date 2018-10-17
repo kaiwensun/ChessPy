@@ -14,6 +14,7 @@ if __name__ == "__main__":
         waitress.serve(app, host="0.0.0.0", port=int(settings.PORT_NUMBER))
     else:
         gunicorn_base = importlib.import_module('gunicorn.app.base')
+
         class StandaloneApplication(gunicorn_base.BaseApplication):
             def __init__(self, app, **kwargs):
                 self.kwargs = kwargs
