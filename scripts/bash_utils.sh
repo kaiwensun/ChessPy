@@ -53,3 +53,22 @@ install_linux_redis() {
     fi
 }
 
+run_redis() {
+    unameOut="$(uname -s)"
+    case "${unameOut}" in
+        Linux*|Darwin*)    ./redis/linux/src/redis-server;;
+        CYGWIN*|MINGW*)    ./redis/win/redis-server.exe ./redis/win/redis.windows.conf;;
+        *)                 echo "UNKNOWN:${unameOut}"
+                           exit 1
+    esac
+}
+
+stop_redis() {
+    unameOut="$(uname -s)"
+    case "${unameOut}" in
+        Linux*|Darwin*)    ./redis/linux/src/redis-cli shutdown;;
+        CYGWIN*|MINGW*)    ./redis/win/redis-cli.exe shutdown;;
+        *)                 echo "UNKNOWN:${unameOut}"
+                           exit 1
+    esac
+}
