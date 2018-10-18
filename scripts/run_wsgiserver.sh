@@ -4,6 +4,7 @@ pushd $( dirname "${BASH_SOURCE[0]}" )/.. > /dev/null
 source "./scripts/bash_utils.sh"
 activate_venv
 
+run_redis &
 unameOut="$(uname -s)"
 case "${unameOut}" in
     Linux*|Darwin*)    machine="linux";;

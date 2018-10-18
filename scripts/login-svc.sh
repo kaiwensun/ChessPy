@@ -1,2 +1,2 @@
 #!/bin/bash
-ssh svc@192.168.0.89
+ssh svc@remote-server
