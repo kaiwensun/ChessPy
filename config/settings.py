@@ -6,6 +6,7 @@ PORT_NUMBER = 8888
 DEBUG_MODE = True
 ENV = _NOT_SET_
 FLASK_APP_SECRET_KEY = _NOT_SET_
+IS_ADMIN_SERVER = False
 
 
 thismodule = sys.modules[__name__]

@@ -1,7 +1,9 @@
 from flask import Blueprint
 from flask import jsonify
+from flask import request
 from app.svc.membership import driver as membership_driver
-from app.svc.match import memory_driver as match_driver
+from app.svc.match import driver as match_driver
+from app.flask_ext import redis_client
 
 bp = Blueprint(__name__.split('.')[2], __name__)
 
@@ -21,3 +23,9 @@ def all_users():
 def all_matches():
     match_data = match_driver._get_all_data()
     return jsonify(match_data)
+
+
+@bp.route('clear_redis')
+def clear_redis():
+    redis_client.flushdb()
+    return "redis data is cleaned."
