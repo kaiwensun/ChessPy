@@ -22,8 +22,9 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = settings.FLASK_APP_SECRET_KEY
 
 # Blueprints
+if settings.IS_ADMIN_SERVER:
+    app.register_blueprint(control_bp, url_prefix='/control')
 app.register_blueprint(site_bp, url_prefix='/')
-app.register_blueprint(control_bp, url_prefix='/control')
 app.register_blueprint(modals_bp, url_prefix='/modals')
 app.register_blueprint(membership_bp, url_prefix='/membership')
 app.register_blueprint(match_bp, url_prefix='/match')
