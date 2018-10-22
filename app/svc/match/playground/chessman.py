@@ -9,7 +9,6 @@ class Chessman(object):
     def to_dict(self):
         return {
             'id': self.id,
-            'is_alive': self.is_alive,
             'position': self.position.to_dict()
         }
 
@@ -17,7 +16,6 @@ class Chessman(object):
     def from_dict(data):
         chessman = Chessman(data['id'])
         chessman._current_position = GlobalPosition.from_dict(data['position'])
-        chessman._is_alive = data['is_alive']
         return chessman
 
     def __init__(self, chess_id):
@@ -28,7 +26,6 @@ class Chessman(object):
         self._role = Chessman._id2role(chess_id)
         self._init_global_position = Chessman._calc_init_position(chess_id)
         self._current_position = Chessman._calc_init_position(chess_id)
-        self._is_alive = True
         self._char = Chessman._role2char(self.role, self.color)
 
     def __str__(self):
@@ -58,13 +55,112 @@ class Chessman(object):
     def position(self):
         return self._current_position
 
-    @property
-    def is_alive(self):
-        return self._is_alive
+    @position.setter
+    def position(self, position):
+        if not (isinstance(position, GlobalPosition) or (position is None)):
+            raise TypeError(
+                "chessman position must be of type {}".format(
+                    GlobalPosition.__class__.__qualname__))
+        self._current_position = position
 
     @property
     def char(self):
         return self._char
+
+    def can_exist_at(self, position):
+        if not isinstance(position, GlobalPosition):
+            raise TypeError(
+                "expecting {}".format(
+                    GlobalPosition.__class__.__qualname__))
+        px = position.x
+        py = position.y
+        if self.color == ChessColor.BLACK:
+            py = CHESSBOARD_HEIGHT - 1 - py
+        if self.role is ChessRole.SHI:
+            if py in [0, 2]:
+                return px in [3, 5]
+            elif py == 1:
+                return px == 4
+        elif self.role is ChessRole.XIANG:
+            if py in [0, 4]:
+                return px in [2, 6]
+            elif py == 2:
+                return px == 4
+        elif self.role in [ChessRole.MA, ChessRole.JU, ChessRole.PAO]:
+            return True
+        elif self.role is ChessRole.BING:
+            if py > 4:
+                return True
+            elif py in [3, 4]:
+                return px in [0, 2, 4, 6, 8]
+        elif self.role is ChessRole.SHUAI:
+            return px >= 3 and px <= 5 and py >= 0 and py <= 2
+        return False
+
+    def can_reach(self, position, chessboard):
+
+        def can_reach_straight(delta, expect_blocker_cnt):
+            if delta.x != 0 and delta.y != 0:
+                return False
+            blocker = GlobalPosition(self.position.x, self.position.y)
+            for attr_i, attr_j in [('x', 'y'), ('y', 'x')]:
+                if getattr(delta, attr_i) == 0:
+                    delta_step = 1 if getattr(delta, attr_j) > 0 else -1
+                    for _ in range(getattr(abs(delta), attr_j) - 1):
+                        new_step = getattr(blocker, attr_j) + delta_step
+                        setattr(blocker, attr_j, new_step)
+                        if chessboard.get_chessman(blocker):
+                            expect_blocker_cnt -= 1
+                            if expect_blocker_cnt < 0:
+                                return False
+            return expect_blocker_cnt == 0
+
+        if not isinstance(position, GlobalPosition):
+            raise TypeError(
+                "expecting {}".format(
+                    GlobalPosition.__class__.__qualname__))
+        dst_chessman = chessboard.get_chessman(position)
+        if dst_chessman and dst_chessman.color == self.color:
+            return False
+        if self.position == position:
+            return False
+        delta = position - self.position
+        if self.role is ChessRole.SHI:
+            return abs(delta) == (1, 1)
+        elif self.role is ChessRole.XIANG:
+            if abs(delta) != (2, 2):
+                return False
+            blocker = self.position.average_with(position)
+            if chessboard.get_chessman(blocker):
+                return False
+            return True
+        elif self.role is ChessRole.MA:
+            absdelta = abs(delta)
+            if absdelta != (1, 2) and absdelta != (2, 1):
+                return False
+            blocker = self.position.average_with(position)
+            if absdelta.x == 2:
+                blocker.y = self.position.y
+            else:
+                blocker.x = self.position.x
+            if chessboard.get_chessman(blocker):
+                return False
+            return True
+        elif self.role is ChessRole.JU:
+            return can_reach_straight(delta, 0)
+        elif self.role is ChessRole.PAO:
+            target = chessboard.get_chessman(position)
+            if target:
+                return can_reach_straight(delta, 1)
+            else:
+                return can_reach_straight(delta, 0)
+        elif self.role is ChessRole.BING:
+            return delta.y >= 0 and abs(delta.x) + delta.y == 1
+        elif self.role is ChessRole.SHUAI:
+            absdelta = abs(delta)
+            return absdelta.x + absdelta.y == 1
+        else:
+            raise ValueError(self.role)
 
     @staticmethod
     def _calc_init_position(chess_id):

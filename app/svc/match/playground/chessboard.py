@@ -1,5 +1,6 @@
 from app.svc.match.playground.consts import TOTAL_CHESS_CNT, CHESSBOARD_HEIGHT, CHESSBOARD_WIDTH
 from app.svc.match.playground.chessman import Chessman
+from app.svc.match.playground.position import GlobalPosition
 from app.svc.match.playground.chess_color import ChessColor
 import os
 
@@ -58,6 +59,59 @@ class Chessboard(object):
                 else:
                     chars.append(_BETWEEN_LINES_)
         return ''.join(chars)
+
+    def get_position(self, chess_id):
+        chessman = self._chessmen[chess_id]
+        if chessman:
+            if chessman.id != chess_id:
+                raise ValueError(
+                    "chessman.id = {}, chess_id = {}".format(
+                        chessman.id, chess_id))
+            return chessman.position
+        return None
+
+    def get_chessman(self, position):
+        chess_id = self._board[position.x][position.y]
+        return chess_id and self._chessmen[chess_id]
+
+    def pick_up(self, chess_id):
+        chessman = self._chessmen[chess_id]
+        position = chessman.position
+        chessman.position = None
+        assert(self._board[position.x][position.y] == chess_id)
+        self._board[position.x][position.y] = None
+
+    def kill(self, chess_id):
+        self.pick_up(chess_id)
+        self._chessmen[chess_id] = None
+
+    def put_at(self, chess_id, position):
+        assert(self.get_chessman(position) is None)
+        self._board[position.x][position.y] = chess_id
+        chessman = self._chessmen[chess_id]
+        if not chessman:
+            chessman = Chessman(chess_id)
+            self._chessmen[chess_id] = chessman
+        chessman.position = position
+
+    def move(self, src_x, src_y, dst_x, dst_y):
+        src = GlobalPosition(src_x, src_y)
+        chessman = self.get_chessman(src)
+        chess_id = chessman.id
+        if not chessman:
+            raise ValueError(
+                'Chess is not on board (chess_id = {})'.format(chess_id))
+        dst = GlobalPosition(dst_x, dst_y)
+        if chessman.can_exist_at(dst) and chessman.can_reach(dst, self):
+            target = self.get_chessman(dst)
+            if target:
+                self.kill(target.id)
+            self.pick_up(chess_id)
+            self.put_at(chess_id, dst)
+        else:
+            raise ValueError(
+                "Can't move {} from {} to {}".format(
+                    chessman, src, dst))
 
     @property
     def active_player_color(self):
