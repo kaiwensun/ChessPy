@@ -22,8 +22,8 @@ class Chessman(object):
         if chess_id < 0 or chess_id >= TOTAL_CHESS_CNT:
             raise ValueError("Invalid chess id {}".format(chess_id))
         self._chess_id = chess_id
-        self._color = Chessman._id2color(chess_id)
-        self._role = Chessman._id2role(chess_id)
+        self._color = Chessman.id2color(chess_id)
+        self._role = Chessman.id2role(chess_id)
         self._init_global_position = Chessman._calc_init_position(chess_id)
         self._current_position = Chessman._calc_init_position(chess_id)
         self._char = Chessman._role2char(self.role, self.color)
@@ -175,13 +175,13 @@ class Chessman(object):
         return GlobalPosition(init_x, init_y)
 
     @staticmethod
-    def _id2color(chess_id):
+    def id2color(chess_id):
         return (ChessColor.RED
                 if chess_id < TOTAL_CHESS_CNT // 2
                 else ChessColor.BLACK)
 
     @staticmethod
-    def _id2role(chess_id):
+    def id2role(chess_id):
         mirrored_id = chess_id % (TOTAL_CHESS_CNT // 2)
         if mirrored_id == 15:
             return ChessRole.SHUAI

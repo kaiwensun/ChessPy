@@ -3,7 +3,9 @@ import uuid
 import random
 
 from redis_collections import Dict, Set, List, Deque
-from . import exceptions, msg_meta
+from app.svc.match import exceptions, msg_meta
+from app.svc.match.playground.chessboard import Chessboard
+from config import settings
 
 _ALL_MATCHES = Dict(key="ALL_MATCHES", redis=redis_client)
 _USER_2_MATCH_ID = Dict(key="USER_2_MATCH_ID", redis=redis_client)
@@ -71,6 +73,10 @@ class Match(object):
     def active_players_cnt(self):
         return len([puid for puid in self.player_uids if puid])
 
+    @property
+    def chessboard_id(self):
+        return "chessboard-{}".format(self.match_id)
+
 
 def _lock(typ, key, blocking=False):
     lock_id = 'lock-{}-{}'.format(typ, key)
@@ -101,6 +107,11 @@ def join_match(player_uid, join_token):
         match.set_player2(player_uid)
         _ALL_MATCHES[match_id] = match
         _USER_2_MATCH_ID[player_uid] = match.match_id
+        chessboard = Chessboard()
+        redis_client.setex(
+            match.chessboard_id,
+            settings.GAME_TTL,
+            chessboard.to_dict())
         return match
     finally:
         all_match_lock.release()
@@ -143,6 +154,7 @@ def leave_match(player_uid):
                 _PUBLIC_PENDING_MATCH_IDS.remove(match_id)
             except KeyError:
                 pass
+        redis_client.delete(match.chessboard_id)
     finally:
         all_match_lock.release()
 
