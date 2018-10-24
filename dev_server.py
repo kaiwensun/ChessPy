@@ -7,4 +7,7 @@ if __name__ == "__main__":
     # chessboard.move(1,2,4,2)
     # chessboard.move(4, 2, 4, 6)
     # chessboard.move(4, 6, 0, 6)
+    # from app.flask_ext import redis_client
+    # import pdb
+    # pdb.set_trace()
     app.run(host="0.0.0.0", port=settings.PORT_NUMBER)

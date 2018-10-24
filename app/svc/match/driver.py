@@ -1,9 +1,10 @@
 from app.flask_ext import redis_client
-import uuid
-import random
 
 from redis_collections import Dict, Set, List, Deque
-from . import exceptions, msg_meta
+from app.svc.match import exceptions, msg_meta
+from app.svc.match.playground.chessboard import Chessboard
+from app.svc.match.match import Match
+from config import settings
 
 _ALL_MATCHES = Dict(key="ALL_MATCHES", redis=redis_client)
 _USER_2_MATCH_ID = Dict(key="USER_2_MATCH_ID", redis=redis_client)
@@ -13,63 +14,6 @@ _PRIVATE_PENDING_MATCH_IDS = Dict(
 _PUBLIC_PENDING_MATCH_IDS = Set(
     key="PUBLIC_PENDING_MATCHES",
     redis=redis_client)
-
-
-class Match(object):
-    def __init__(self, player1_uid, join_token):
-        self.match_id = '{}-{}'.format('private' if join_token else 'public',
-                                       uuid.uuid4().hex)
-        self.player_uids = [player1_uid, None]
-        player1_color = random.randint(0, 1)
-        colors = ["red", "black"]
-        self.player_colors = [colors[player1_color], colors[1 - player1_color]]
-        self.join_token = join_token
-
-    def set_player2(self, player2_uid):
-        self.player_uids[1] = player2_uid
-
-    def remove_player(self, player_uid):
-        self.player_uids = [
-            puid if puid != player_uid else None for puid in self.player_uids]
-
-    @property
-    def to_dict(self):
-        return {
-            'player_uids': self.player_uids,
-            'player_colors': self.player_colors,
-            'match_id': self.match_id,
-            'join_token': self.join_token
-        }
-
-    def _channel_to(self, player_uid):
-        if not all(self.player_uids):
-            return None
-        if self.player_uids[1] == player_uid:
-            from_uid, to_uid = self.player_uids
-        elif self.player_uids[0] == player_uid:
-            to_uid, from_uid = self.player_uids
-        else:
-            return None
-        return 'match_channel-{}-{}'.format(from_uid, to_uid)
-
-    def send_message_from(self, my_uid, message):
-        for other_uid in self.player_uids:
-            if other_uid != my_uid:
-                channel_name = self._channel_to(other_uid)
-        queue = Deque(key=channel_name, redis=redis_client)
-        queue.append(message)
-
-    def receive_message_to(self, my_uid):
-        channel_name = self._channel_to(my_uid)
-        queue = Deque(key=channel_name, redis=redis_client)
-        try:
-            return queue.popleft()
-        except IndexError:
-            return None
-
-    @property
-    def active_players_cnt(self):
-        return len([puid for puid in self.player_uids if puid])
 
 
 def _lock(typ, key, blocking=False):
@@ -101,6 +45,11 @@ def join_match(player_uid, join_token):
         match.set_player2(player_uid)
         _ALL_MATCHES[match_id] = match
         _USER_2_MATCH_ID[player_uid] = match.match_id
+        chessboard = Chessboard()
+        redis_client.setex(
+            match.chessboard_id,
+            settings.GAME_TTL,
+            chessboard.to_dict())
         return match
     finally:
         all_match_lock.release()
@@ -143,6 +92,7 @@ def leave_match(player_uid):
                 _PUBLIC_PENDING_MATCH_IDS.remove(match_id)
             except KeyError:
                 pass
+        redis_client.delete(match.chessboard_id)
     finally:
         all_match_lock.release()
 
@@ -171,7 +121,7 @@ def _register_player(user_id, is_public_game):
 
 def _get_all_data():
     all_matches = _ALL_MATCHES._data()
-    all_matches = {key: value.to_dict for key, value in all_matches.items()}
+    all_matches = {key: value.to_dict() for key, value in all_matches.items()}
     return {
         '_ALL_MATCHES': all_matches,
         '_USER_2_MATCH_ID': _USER_2_MATCH_ID._data(),

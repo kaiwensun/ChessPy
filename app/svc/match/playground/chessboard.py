@@ -2,15 +2,13 @@ from app.svc.match.playground.consts import TOTAL_CHESS_CNT, CHESSBOARD_HEIGHT, 
 from app.svc.match.playground.chessman import Chessman
 from app.svc.match.playground.position import GlobalPosition
 from app.svc.match.playground.chess_color import ChessColor
+from app.svc.match.playground.move_history import MoveHistory
 import os
 
 
 class Chessboard(object):
-    def __init__(self, chessmen=None, active_player_color=None):
-        if chessmen is None:
-            chessmen = [Chessman(i) for i in range(TOTAL_CHESS_CNT)]
-        if active_player_color is None:
-            active_player_color = ChessColor.RED
+    def __init__(self, chessmen=[Chessman(i) for i in range(
+            TOTAL_CHESS_CNT)], active_player_color=ChessColor.RED, move_history=MoveHistory()):
         # board[i][j] is corresponding to GlobalPosition(i, j)
         self._board = [
             [None] *
@@ -34,6 +32,7 @@ class Chessboard(object):
                 raise ValueError("Can't assign chessman {} to {} taken by chessman {}".format(
                     chessman, (x, y), self._chessmen[self._board[x][y]]))
             self._board[x][y] = chessman.id
+        self._move_history = move_history
 
     def __str__(self):
         _EMPTY_SLOT_ = '十'
@@ -108,10 +107,26 @@ class Chessboard(object):
                 self.kill(target.id)
             self.pick_up(chess_id)
             self.put_at(chess_id, dst)
+            self._move_history.move(chess_id, src, dst, target and target.id)
         else:
             raise ValueError(
                 "Can't move {} from {} to {}".format(
                     chessman, src, dst))
+
+    def can_retract(self):
+        if len(self._move_history) == 0:
+            return False
+        move_step = self._move_history[-1]
+        chess_id = move_step['chess_id']
+        if Chessman.id2color(chess_id) == self.active_player_color:
+            return False
+        return True
+
+    def retrace(self):
+        if self.can_retract():
+            return self._move_history.retract()
+        else:
+            return None
 
     @property
     def active_player_color(self):
@@ -120,7 +135,8 @@ class Chessboard(object):
     def to_dict(self):
         return {
             'active_player_color': self.active_player_color.value,
-            'chessmen': [chessman.to_dict() for chessman in self._chessmen if chessman is not None]
+            'chessmen': [chessman.to_dict() for chessman in self._chessmen if chessman is not None],
+            'move_history': self._move_history.to_dict()
         }
 
     @staticmethod
@@ -128,4 +144,5 @@ class Chessboard(object):
         active_player_color = data['active_player_color']
         chessmen = [Chessman.from_dict(chessman_dict)
                     for chessman_dict in data['chessmen']]
-        return Chessboard(chessmen, active_player_color)
+        move_history = MoveHistory.from_dict(data['move_history'])
+        return Chessboard(chessmen, active_player_color, move_history)
