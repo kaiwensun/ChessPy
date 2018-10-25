@@ -5,7 +5,7 @@ from flask import request
 
 from app import translations
 from .field_renderer import field_renderer
-from app.config import settings
+from config import settings
 
 
 def timestamp(fmt="%Y%m%d"):

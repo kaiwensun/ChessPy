@@ -78,7 +78,8 @@ class GlobalPosition(_BasePosition):
             x, y = self.x + delta[0], self.y + delta[1]
         else:
             raise TypeError(
-                "param must be of type {} or length-2 tuple".format(PositionDelta.__class__.__qualname__))
+                "param must be of type {} or length-2 tuple"
+                .format(PositionDelta.__class__.__qualname__))
         return GlobalPosition(x, y)
 
     def __radd__(self, delta):
