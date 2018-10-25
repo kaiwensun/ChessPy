@@ -1,19 +1,17 @@
 from app.flask_ext import redis_client
 
-from redis_collections import Dict, Set, List, Deque
+from redis_collections import Dict
 from app.svc.match import exceptions, msg_meta
 from app.svc.match.playground.chessboard import Chessboard
 from app.svc.match.match import Match
+from app.svc.match.match_db import MatchDB
+from app.shared import utils
 from config import settings
 
 _ALL_MATCHES = Dict(key="ALL_MATCHES", redis=redis_client)
 _USER_2_MATCH_ID = Dict(key="USER_2_MATCH_ID", redis=redis_client)
-_PRIVATE_PENDING_MATCH_IDS = Dict(
-    key="PRIVATE_PENDING_MATCHE_IDS",
-    redis=redis_client)
-_PUBLIC_PENDING_MATCH_IDS = Set(
-    key="PUBLIC_PENDING_MATCHES",
-    redis=redis_client)
+_PRIVATE_PENDING_MATCH_IDS = 'private_pending_match_ids'
+_PUBLIC_PENDING_MATCH_IDS = 'public_pending_match_ids'
 
 
 def _lock(typ, key, blocking=False):
@@ -31,12 +29,13 @@ def join_match(player_uid, join_token):
     try:
         if join_token:
             match_lock, _ = _lock('join_token', join_token)
-            match_id = _PRIVATE_PENDING_MATCH_IDS.pop(join_token)
+            match_id = MatchDB.takeaway(_PRIVATE_PENDING_MATCH_IDS, join_token)
         else:
-            match_id = _PUBLIC_PENDING_MATCH_IDS.pop()
-        all_match_lock, _ = _lock('all_match', match_id)
-    except KeyError:
-        return _create_match(player_uid, join_token)
+            match_id = MatchDB.dequeue(_PUBLIC_PENDING_MATCH_IDS, None, False)
+        if match_id is None:
+            return _create_match(player_uid, join_token)
+        else:
+            all_match_lock, _ = _lock('all_match', match_id)
     finally:
         if join_token:
             match_lock.release()
@@ -59,9 +58,9 @@ def _create_match(player_uid1, join_token):
     match = Match(player_uid1, join_token)
     _USER_2_MATCH_ID[player_uid1] = match.match_id
     if join_token:
-        _PRIVATE_PENDING_MATCH_IDS[join_token] = match.match_id
+        MatchDB.set(_PRIVATE_PENDING_MATCH_IDS, join_token, match.match_id)
     else:
-        _PUBLIC_PENDING_MATCH_IDS.add(match.match_id)
+        MatchDB.enqueue(_PUBLIC_PENDING_MATCH_IDS, None, match.match_id)
     _ALL_MATCHES[match.match_id] = match
     return match
 
@@ -86,12 +85,10 @@ def leave_match(player_uid):
             return
         match = _ALL_MATCHES.pop(match_id)
         if match.join_token:
-            _PRIVATE_PENDING_MATCH_IDS.pop(match.join_token, None)
+            MatchDB.delete(_PRIVATE_PENDING_MATCH_IDS, match.join_token)
         else:
-            try:
-                _PUBLIC_PENDING_MATCH_IDS.remove(match_id)
-            except KeyError:
-                pass
+            MatchDB.force_remove_from_queue(
+                _PUBLIC_PENDING_MATCH_IDS, None, match_id)
         redis_client.delete(match.chessboard_id)
     finally:
         all_match_lock.release()
@@ -116,15 +113,16 @@ def _register_player(user_id, is_public_game):
     finally:
         register_lock.release()
 
-# for debug only
 
-
+@utils.not_on_production
 def _get_all_data():
     all_matches = _ALL_MATCHES._data()
     all_matches = {key: value.to_dict() for key, value in all_matches.items()}
     return {
         '_ALL_MATCHES': all_matches,
         '_USER_2_MATCH_ID': _USER_2_MATCH_ID._data(),
-        '_PRIVATE_PENDING_MATCH_IDS': _PRIVATE_PENDING_MATCH_IDS._data(),
-        '_PUBLIC_PENDING_MATCH_ID': list(_PUBLIC_PENDING_MATCH_IDS._data())
+        '_PRIVATE_PENDING_MATCH_IDS':
+            MatchDB.dump_table(_PRIVATE_PENDING_MATCH_IDS),
+        '_PUBLIC_PENDING_MATCH_ID':
+            MatchDB.get_queue(_PUBLIC_PENDING_MATCH_IDS, None)
     }

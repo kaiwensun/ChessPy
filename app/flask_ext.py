@@ -6,4 +6,4 @@ from redis import StrictRedis
 db = SQLAlchemy()
 login_manager = LoginManager()
 csrf = CSRFProtect()
-redis_client = StrictRedis()
+redis_client = StrictRedis(decode_responses=True)
