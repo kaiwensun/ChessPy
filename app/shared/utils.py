@@ -5,6 +5,7 @@ from flask import request
 
 from app import translations
 from .field_renderer import field_renderer
+from config import settings
 
 
 def timestamp(fmt="%Y%m%d"):
@@ -67,3 +68,13 @@ class LazyString(str):
 
 def render_field(field, *args, **kwargs):
     return field_renderer(field, *args, **kwargs)
+
+
+def not_on_production(func):
+    def wrapper(*args, **kwargs):
+        if settings.ENV == 'prod':
+            print("WARNING: do not call {} on production!".format(func))
+            return None
+        else:
+            return func(*args, **kwargs)
+    return wrapper

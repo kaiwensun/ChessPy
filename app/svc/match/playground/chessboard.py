@@ -1,4 +1,5 @@
-from app.svc.match.playground.consts import TOTAL_CHESS_CNT, CHESSBOARD_HEIGHT, CHESSBOARD_WIDTH
+from app.svc.match.playground.consts import TOTAL_CHESS_CNT, \
+    CHESSBOARD_HEIGHT, CHESSBOARD_WIDTH
 from app.svc.match.playground.chessman import Chessman
 from app.svc.match.playground.position import GlobalPosition
 from app.svc.match.playground.chess_color import ChessColor
@@ -7,8 +8,11 @@ import os
 
 
 class Chessboard(object):
-    def __init__(self, chessmen=[Chessman(i) for i in range(
-            TOTAL_CHESS_CNT)], active_player_color=ChessColor.RED, move_history=MoveHistory()):
+    def __init__(
+            self,
+            chessmen=[Chessman(i) for i in range(TOTAL_CHESS_CNT)],
+            active_player_color=ChessColor.RED,
+            move_history=MoveHistory()):
         # board[i][j] is corresponding to GlobalPosition(i, j)
         self._board = [
             [None] *
@@ -29,8 +33,10 @@ class Chessboard(object):
             x = chessman.position.x
             y = chessman.position.y
             if self._board[x][y] is not None:
-                raise ValueError("Can't assign chessman {} to {} taken by chessman {}".format(
-                    chessman, (x, y), self._chessmen[self._board[x][y]]))
+                raise ValueError(
+                    "Can't assign chessman {} to {} taken by chessman {}"
+                    .format(
+                        chessman, (x, y), self._chessmen[self._board[x][y]]))
             self._board[x][y] = chessman.id
         self._move_history = move_history
 
@@ -135,7 +141,8 @@ class Chessboard(object):
     def to_dict(self):
         return {
             'active_player_color': self.active_player_color.value,
-            'chessmen': [chessman.to_dict() for chessman in self._chessmen if chessman is not None],
+            'chessmen': [chessman.to_dict() for chessman in self._chessmen
+                         if chessman is not None],
             'move_history': self._move_history.to_dict()
         }
 
