@@ -29,7 +29,7 @@ class MatchDB(object):
     def delete(table, entry_id, ex=settings.GAME_TTL):
         key = MatchDB._genkey(table, entry_id)
         result = redis_client.delete(key)
-        redis_client.expire(key, ex)
+        # redis_client.expire(key, ex)
         return result
 
     @staticmethod
@@ -68,7 +68,7 @@ class MatchDB(object):
     def takeaway(table, entry_id, ex=settings.GAME_TTL):
         key = MatchDB._genkey(table, entry_id)
         pipe = redis_client.pipeline(transaction=True)
-        results = pipe.get(key).delete(key).expire(key).execute()
+        results = pipe.get(key).delete(key).execute()
         return results[0]
 
     @staticmethod
@@ -76,3 +76,27 @@ class MatchDB(object):
     def dump_table(table):
         keys = redis_client.keys('{}*'.format(table))
         return redis_client.mget(keys)
+
+    @staticmethod
+    def lock(table, entry_id, blocking_timeout=0):
+        key = MatchDB._genkey('lock-{}'.format(table), entry_id)
+        redis_lock = redis_client.lock(
+            key, timeout=settings.GAME_TTL, blocking_timeout=settings.GAME_TTL)
+        return redis_lock, redis_lock.acquire(
+            key, blocking_timeout=blocking_timeout)
+
+    @staticmethod
+    def enter_private_match(join_token):
+        key = MatchDB._genkey('private_match_population', join_token)
+        population = redis_client.incr(key)
+        redis_client.expire(key, settings.GAME_TTL)
+        if population > 2:
+            redis_client.decr(key)
+        return population
+
+    @staticmethod
+    def leave_private_match(join_token):
+        key = MatchDB._genkey('private_match_population', join_token)
+        population = redis_client.decr(key)
+        redis_client.expire(key, settings.GAME_TTL)
+        assert(population >= 0)

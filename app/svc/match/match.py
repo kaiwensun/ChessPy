@@ -46,6 +46,8 @@ class Match(object):
 
     @staticmethod
     def from_dict(data):
+        if data is None:
+            return None
         match = Match(data['player_uids'][0], data['join_token'])
         match._match_id = data['match_id']
         match._join_token = data['join_token']
@@ -62,15 +64,20 @@ class Match(object):
             return None
         return '{}-{}'.format(from_uid, to_uid)
 
-    def send_message_from(self, my_uid, message):
+    def send_message_from(self, my_uid, msg_type, msg_data):
         for other_uid in self.player_uids:
             if other_uid != my_uid:
                 channel_name = self._channel_to(other_uid)
+        message = {
+            'msg_type': msg_type,
+            'msg_data': msg_data
+        }
         MatchDB.enqueue('match_channel', channel_name, message)
 
     def receive_message_to(self, my_uid):
         channel_name = self._channel_to(my_uid)
-        return MatchDB.dequeue('match_channel', channel_name, False)
+        message = MatchDB.dequeue('match_channel', channel_name, False)
+        return message['msg_type'], message['msg_data']
 
     @property
     def active_players_cnt(self):

@@ -8,3 +8,11 @@ class AlreadyInMatchException(BaseMatchException):
 
 class NoMatchFoundException(BaseMatchException):
     pass
+
+
+class InvalidMatchState(BaseMatchException):
+    pass
+
+
+class CannotAcquireMatchDoor(BaseMatchException):
+    pass
