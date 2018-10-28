@@ -22,7 +22,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = settings.FLASK_APP_SECRET_KEY
 
 # Blueprints
-if settings.IS_ADMIN_SERVER:
+if settings.IS_ADMIN_SERVER or app.config.get('DEBUG'):
     app.register_blueprint(control_bp, url_prefix='/control')
 app.register_blueprint(site_bp, url_prefix='/')
 app.register_blueprint(modals_bp, url_prefix='/modals')

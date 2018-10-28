@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template
+from app.views.match import forms as match_forms
 from app.views.membership import forms as membership_forms
 
 bp = Blueprint(__name__.split('.')[2], __name__)
@@ -35,3 +36,14 @@ def sign_out_modal():
                            action_endpoint='membership.sign_out',
                            field_names=[],
                            button_text='Sign out')
+
+
+@bp.route('join_private_match_modal')
+def join_private_game_modal():
+    form = match_forms.JoinPrivateMatchForm()
+    return render_template('modals/authentication.html',
+                           form=form,
+                           form_id='join-private-match-form',
+                           action_endpoint='match.join_private_match',
+                           field_names=['join_token'],
+                           button_text="Join game")

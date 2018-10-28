@@ -14,17 +14,28 @@ from app.svc.match import driver as match_driver
 bp = Blueprint(__name__.split('.')[2], __name__)
 
 
-@bp.route('join_match', methods=['POST'])
-def create_match():
-    form = forms.CreateMatchForm()
+@bp.route('join_private_match', methods=['POST'])
+def join_private_match():
+    form = forms.JoinPrivateMatchForm()
     if not form.validate_on_submit():
         return 'error 1'
     match = match_driver.join_match(
         current_user.user_id, form.join_token.data)
     if not match:
         return 'error 2'
-    return redirect(url_for('match.view_match',
-                            player_uid=current_user.user_id))
+    return jsonify(match.to_dict())
+
+
+@bp.route('join_public_match', methods=['POST'])
+def join_public_match():
+    form = forms.JoinPublicMatchForm()
+    if not form.validate_on_submit():
+        return 'error 1'
+    match = match_driver.join_match(
+        current_user.user_id, None)
+    if not match:
+        return 'error 2'
+    return jsonify(match.to_dict())
 
 
 @bp.route('view_match')

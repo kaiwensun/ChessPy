@@ -2,7 +2,7 @@
 
 {% block js %}
     <script>
-        $("button.sign-up, button.sign-in, button.sign-out").on("click", function() {
+        $("button.sign-up, button.sign-in, button.sign-out, button.private-new-game").on("click", function() {
             var $button = $(this);
             $.ajax({
                 method: 'GET',
@@ -66,13 +66,13 @@
 {% endblock %}
 
 {% block below_board_buttons %}
-    <form action="{{ url_for('match.create_match') }}" method="post">
+    <form action="{{ url_for('match.join_public_match') }}" method="post">
         {{ create_match_form.csrf_token() }}
-        <button type="submit" class="btn btn-primary random-new-game" data-form-url="{{ url_for('modals.sign_out_modal') }}">
-            {{ utils.gettext('New game') }}
+        <button type="submit" class="btn btn-primary random-new-game">
+            {{ utils.gettext('Random game') }}
         </button>
     </form>
-    <button type="button" class="btn btn-primary random-new-game" data-form-url="{{ url_for('modals.sign_out_modal') }}">
+    <button type="button" class="btn btn-primary private-new-game" data-form-url="{{ url_for('modals.join_private_game_modal') }}">
         {{ utils.gettext('Private game') }}
     </button>
     {% if current_user.is_authenticated %}
