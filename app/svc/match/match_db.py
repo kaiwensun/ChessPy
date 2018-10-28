@@ -1,3 +1,5 @@
+import ast
+
 from config import settings
 from app.shared import utils
 from app.flask_ext import redis_client
@@ -13,9 +15,26 @@ class MatchDB(object):
             return "{}-{}".format(table, entry_id)
 
     @staticmethod
+    def _str2strrepr(obj):
+        if isinstance(obj, str):
+            return '"""{}"""'.format(obj)
+        return obj
+
+    @staticmethod
+    def _repr2obj(obj):
+        if obj is None:
+            return None
+        if isinstance(obj, str):
+            return ast.literal_eval(obj)
+        if isinstance(result, list):
+            return [MatchDB._repr2obj(item) for item in result]
+        return obj
+
+    @staticmethod
     def set(table, entry_id, value, ex=settings.GAME_TTL,
             px=None, nx=False, xx=False):
         key = MatchDB._genkey(table, entry_id)
+        value = MatchDB._str2strrepr(value)
         return redis_client.set(key, value, ex, px, nx, xx)
 
     @staticmethod
@@ -23,7 +42,7 @@ class MatchDB(object):
         key = MatchDB._genkey(table, entry_id)
         result = redis_client.get(key)
         redis_client.expire(key, ex)
-        return result
+        return MatchDB._repr2obj(result)
 
     @staticmethod
     def delete(table, entry_id, ex=settings.GAME_TTL):
@@ -41,11 +60,12 @@ class MatchDB(object):
         else:
             result = redis_client.lpop(key)
         redis_client.expire(key, ex)
-        return result
+        return MatchDB._repr2obj(result)
 
     @staticmethod
     def enqueue(table, entry_id, value, ex=settings.GAME_TTL):
         key = MatchDB._genkey(table, entry_id)
+        value = MatchDB._str2strrepr(value)
         result = redis_client.rpush(key, value)
         redis_client.expire(key, ex)
         return result
@@ -55,27 +75,27 @@ class MatchDB(object):
         key = MatchDB._genkey(table, entry_id)
         result = redis_client.lrem(key, 0, value)
         redis_client.expire(key, ex)
-        return result
+        return MatchDB._repr2obj(result)
 
     @staticmethod
     def get_queue(table, entry_id, ex=settings.GAME_TTL):
         key = MatchDB._genkey(table, entry_id)
         result = redis_client.lrange(key, 0, -1)
         redis_client.expire(key, ex)
-        return result
+        return MatchDB._repr2obj(result)
 
     @staticmethod
     def takeaway(table, entry_id, ex=settings.GAME_TTL):
         key = MatchDB._genkey(table, entry_id)
         pipe = redis_client.pipeline(transaction=True)
         results = pipe.get(key).delete(key).execute()
-        return results[0]
+        return MatchDB._repr2obj(results[0])
 
     @staticmethod
     @utils.not_on_production
     def dump_table(table):
         keys = redis_client.keys('{}*'.format(table))
-        return redis_client.mget(keys)
+        return MatchDB._repr2obj(redis_client.mget(keys))
 
     @staticmethod
     def lock(table, entry_id, blocking_timeout=0):

@@ -39,7 +39,7 @@ class Match(object):
     def to_dict(self):
         return {
             'player_uids': self.player_uids,
-            'player_colors': self.player_colors,
+            'player_colors': [color.value for color in self.player_colors],
             'match_id': self.match_id,
             'join_token': self.join_token
         }
@@ -49,8 +49,10 @@ class Match(object):
         if data is None:
             return None
         match = Match(data['player_uids'][0], data['join_token'])
+        match._player_colors[1] = data['player_uids'][1]
+        match._player_colors = [ChessColor(color)
+                                for color in data['player_colors']]
         match._match_id = data['match_id']
-        match._join_token = data['join_token']
         return match
 
     def _channel_to(self, player_uid):

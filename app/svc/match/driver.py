@@ -54,8 +54,6 @@ def join_match(player_uid, join_token):
             match_id = MatchDB.dequeue(_PUBLIC_PENDING_MATCH_IDS, None, False)
         if match_id is None:
             match = _create_match(player_uid, join_token)
-            if join_token:
-                match_room_door.release()
         else:
             match = Match.from_dict(MatchDB.get(_ALL_MATCHES, match_id))
             match.set_player2(player_uid)

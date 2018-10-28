@@ -1,0 +1,28 @@
+<style>
+    #{{ form_id }} {
+        display: flex;
+        flex-flow: column nowrap;
+        align-items: center;
+        justify-content: space-around;
+        width: 100%;
+    }
+    #{{ form_id }} .item {
+        display: flex;
+        flex-flow: column nowrap;
+        align-items: stretch;
+        width: 100%;
+        max-width: 180px;
+        min-height: 75px;
+    }
+</style>
+<form id="{{ form_id }}" action="{{ url_for(action_endpoint) }}" method="post" data-button-text="{{ utils.gettext(button_text) }}">
+    {{ utils.gettext(message) }}
+    {{ form.csrf_token() }}
+    {% for field_name in field_names %}
+        <div class="item">
+            {% set field = form[field_name] %}
+            {{ field.label }}
+            {{ utils.render_field(field) }}
+        </div>
+    {% endfor %}
+</form>
