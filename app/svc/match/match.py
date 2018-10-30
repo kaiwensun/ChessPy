@@ -4,13 +4,15 @@ import random
 from app.flask_ext import redis_client
 from app.svc.match.playground.chess_color import ChessColor
 from app.svc.match.match_db import MatchDB
+from app.svc.match import msg_meta
+from app.svc.match import driver as match_driver
 
 
 class Match(object):
     def __init__(self, player1_uid, join_token):
         self._match_id = '{}-{}'.format('private' if join_token else 'public',
                                         uuid.uuid4().hex)
-        self.player_uids = [player1_uid, None]
+        self._player_uids = [player1_uid, None]
         player1_color = random.randint(0, 1)
         colors = [ChessColor.RED, ChessColor.BLACK]
         self._player_colors = [
@@ -18,15 +20,19 @@ class Match(object):
         self._join_token = join_token
 
     def set_player2(self, player2_uid):
-        self.player_uids[1] = player2_uid
+        self._player_uids[1] = player2_uid
 
     def remove_player(self, player_uid):
-        self.player_uids = [
-            puid if puid != player_uid else None for puid in self.player_uids]
+        self._player_uids = [
+            puid if puid != player_uid else None for puid in self._player_uids]
 
     @property
     def match_id(self):
         return self._match_id
+
+    @property
+    def player_uids(self):
+        return self._player_uids.copy()
 
     @property
     def player_colors(self):
@@ -49,7 +55,7 @@ class Match(object):
         if data is None:
             return None
         match = Match(data['player_uids'][0], data['join_token'])
-        match._player_colors[1] = data['player_uids'][1]
+        match._player_uids[1] = data['player_uids'][1]
         match._player_colors = [ChessColor(color)
                                 for color in data['player_colors']]
         match._match_id = data['match_id']
@@ -78,8 +84,11 @@ class Match(object):
 
     def receive_message_to(self, my_uid):
         channel_name = self._channel_to(my_uid)
-        message = MatchDB.dequeue('match_channel', channel_name, False)
-        return message['msg_type'], message['msg_data']
+        message = MatchDB.dequeue('match_channel', channel_name, True)
+        return message or {
+            'msg_type': msg_meta.MSG_TYPE_NOP,
+            'msg_data': None
+        }
 
     @property
     def active_players_cnt(self):
@@ -88,3 +97,11 @@ class Match(object):
     @property
     def chessboard_id(self):
         return "chessboard-{}".format(self.match_id)
+
+    @property
+    def chessboard(self):
+        return match_driver.get_chessboard(self.chessboard_id)
+
+    @chessboard.setter
+    def chessboard(self, value):
+        match_driver.set_chessboard(self.chessboard_id, value)

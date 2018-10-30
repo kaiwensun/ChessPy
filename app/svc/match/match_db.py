@@ -26,8 +26,8 @@ class MatchDB(object):
             return None
         if isinstance(obj, str):
             return ast.literal_eval(obj)
-        if isinstance(result, list):
-            return [MatchDB._repr2obj(item) for item in result]
+        if isinstance(obj, list):
+            return [MatchDB._repr2obj(item) for item in obj]
         return obj
 
     @staticmethod

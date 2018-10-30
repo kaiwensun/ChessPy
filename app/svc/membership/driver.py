@@ -3,6 +3,7 @@ import hmac
 import uuid
 
 import flask_login
+from flask import session
 
 from app.shared import utils
 from app.svc.membership.models import User
@@ -42,7 +43,11 @@ class AnonymousUser(flask_login.AnonymousUserMixin):
         super().__init__()
         now = utils.timestamp(_TIME_FORMAT_)
         self.name = utils.gettext('Anonymous hero')
-        self.user_id = uuid.uuid4().hex
+        if session.get('anonymous_user_id'):
+            self.user_id = session['anonymous_user_id']
+        else:
+            self.user_id = uuid.uuid4().hex
+            session['anonymous_user_id'] = self.user_id
         self.created_at = now
         self._alternative_id = "{}{}{}".format(
             self.user_id, _ALT_ID_SPLITER_, now)

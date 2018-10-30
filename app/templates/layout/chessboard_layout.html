@@ -25,6 +25,7 @@
             {{ utils.gettext('Chinese Chess') }}
             {% if current_user.name %}
                 {{ utils.gettext('Hi, %s!', current_user.name) }}
+                {{ current_user.get_id() }}
             {% endif %}
             {% block header %}
             {% endblock %}

@@ -16,3 +16,12 @@ class JoinPrivateMatchForm(FlaskForm):
             max=32,
             message=utils.gettext(
                 "Join token must be no more than 32 letters long"))])
+
+
+class MessageForm(FlaskForm):
+    msg_type = StringField(
+        'msg_type', [
+            validators.DataRequired("msg_type is required")])
+    msg_data = StringField(
+        'msg_data', [
+            validators.DataRequired("msg_data is required")])

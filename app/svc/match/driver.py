@@ -8,7 +8,7 @@ from app.svc.match.match_db import MatchDB
 from app.shared import utils
 from config import settings
 
-_ALL_MATCHES = "all_matches"  # Dict(key="ALL_MATCHES", redis=redis_client)
+_ALL_MATCHES = "all_matches"
 _USER_2_MATCH_ID = "user_2_match_id"
 _PRIVATE_PENDING_MATCH_IDS = 'private_pending_match_ids'
 _PUBLIC_PENDING_MATCH_IDS = 'public_pending_match_ids'
@@ -26,7 +26,11 @@ def _lock(typ, key, blocking=False):
 
 
 def join_match(player_uid, join_token):
-    _register_player(player_uid, bool(join_token))
+    try:
+        _register_player(player_uid, bool(join_token))
+    except exceptions.AlreadyInMatchException:
+        match_id = MatchDB.get(_USER_2_MATCH_ID, player_uid)
+        return Match.from_dict(MatchDB.get(_ALL_MATCHES, match_id))
     try:
         if join_token:
             blocking_timeout = min(settings.GAME_TTL // 2, 5)
@@ -154,6 +158,14 @@ def get_match(player_uid):
     if not match_id:
         return exceptions.NoMatchFoundException()
     return Match.from_dict(MatchDB.get(_ALL_MATCHES, match_id))
+
+
+def get_chessboard(chessboard_id):
+    return Chessboard.from_dict(MatchDB.get(_CHESSBOARD, chessboard_id))
+
+
+def set_chessboard(chessboard_id, chessboard):
+    return MatchDB.set(_CHESSBOARD, chessboard_id, chessboard.to_dict())
 
 
 def _register_player(user_id, is_public_game):
