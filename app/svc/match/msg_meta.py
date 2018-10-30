@@ -1,5 +1,6 @@
 MSG_TYPE_CONTROL = 'msg_type_ctrl'
-MSG_TYPE_MOVE = 'msg_type_move'
+MSG_TYPE_CHESSMOVE = 'msg_type_chessmove'
+MSG_TYPE_NOP = 'msg_type_nop'
 
 # tell the other player "I am about to leave the match!"
 MSG_CONST_LEFT = 'msg_const_left'

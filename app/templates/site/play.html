@@ -1,9 +1,47 @@
 {% extends "layout/chessboard_layout.html" %}
 
+{% block js %}
+    <script>
+        function move(srcX, srcY, dstX, dstY) {
+            var msg_type = "msg_type_chessmove";
+            var msg_data = JSON.stringify({
+                src: [srcX, srcY],
+                dst: [dstX, dstY]
+            });
+            var $msgForm = $('#match-message-form');
+            $msgForm.find('#msg_type').val(msg_type);
+            $msgForm.find('#msg_data').val(msg_data);
+            $.ajax({
+                method: 'POST',
+                url: "{{ url_for('match.send_match_message') }}",
+                data: $msgForm.serialize(),
+                success: function(data) {
+                    console.log('success');
+                    console.log(data);
+                },
+                error: function(data) {
+                    console.log('error');
+                    console.log(data);
+                }
+            });
+        };
+    </script>
+{% endblock %}
+
 {% block css %}
 {% endblock %}
 
 {% block header %}
+    Participants: {{ match.player_uids }}
+    Match ID: {{ match.match_id }}
+{% endblock %}
+
+{% block chessboard %}
+    <form id="match-message-form" class="d-none">
+        {{ match_msg_form.csrf_token() }}
+        {{ utils.render_field(match_msg_form.msg_type) }}
+        {{ utils.render_field(match_msg_form.msg_data) }}
+    </form>
 {% endblock %}
 
 {% block below_board_buttons %}

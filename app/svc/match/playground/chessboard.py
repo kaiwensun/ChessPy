@@ -148,7 +148,7 @@ class Chessboard(object):
 
     @staticmethod
     def from_dict(data):
-        active_player_color = data['active_player_color']
+        active_player_color = ChessColor(data['active_player_color'])
         chessmen = [Chessman.from_dict(chessman_dict)
                     for chessman_dict in data['chessmen']]
         move_history = MoveHistory.from_dict(data['move_history'])
