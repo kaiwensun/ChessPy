@@ -102,10 +102,14 @@ class Chessboard(object):
     def move(self, src_x, src_y, dst_x, dst_y):
         src = GlobalPosition(src_x, src_y)
         chessman = self.get_chessman(src)
-        chess_id = chessman.id
         if not chessman:
             raise ValueError(
-                'Chess is not on board (chess_id = {})'.format(chess_id))
+                'Chess is not on board ({})'.format(src))
+        chess_id = chessman.id
+        if chessman.color != self.active_player_color:
+            raise ValueError(
+                "{} player can't play {} chess (chess_id={})".format(
+                    self.active_player_color, chessman.color, chess_id))
         dst = GlobalPosition(dst_x, dst_y)
         if chessman.can_exist_at(dst) and chessman.can_reach(dst, self):
             target = self.get_chessman(dst)
@@ -113,6 +117,10 @@ class Chessboard(object):
                 self.kill(target.id)
             self.pick_up(chess_id)
             self.put_at(chess_id, dst)
+            if self._active_player_color == ChessColor.BLACK:
+                self._active_player_color = ChessColor.RED
+            else:
+                self._active_player_color = ChessColor.BLACK
             self._move_history.move(chess_id, src, dst, target and target.id)
         else:
             raise ValueError(

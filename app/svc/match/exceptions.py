@@ -16,3 +16,7 @@ class InvalidMatchState(BaseMatchException):
 
 class CannotAcquireMatchDoor(BaseMatchException):
     pass
+
+
+class NotYourTurn(BaseMatchException):
+    pass
