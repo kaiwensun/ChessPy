@@ -1,10 +1,13 @@
 import uuid
 import random
 
+from flask_login import current_user
+
 from app.flask_ext import redis_client
 from app.svc.match.playground.chess_color import ChessColor
 from app.svc.match.match_db import MatchDB
 from app.svc.match import msg_meta
+from app.svc.match import exceptions
 from app.svc.match import driver as match_driver
 
 
@@ -89,6 +92,15 @@ class Match(object):
             'msg_type': msg_meta.MSG_TYPE_NOP,
             'msg_data': None
         }
+
+    def move(self, src, dst):
+        player_index = self.player_uids.index(current_user.user_id)
+        player_color = self.player_colors[player_index]
+        chessboard = self.chessboard
+        if player_color != chessboard.active_player_color:
+            raise exceptions.NotYourTurn()
+        chessboard.move(src[0], src[1], dst[0], dst[1])
+        self.chessboard = chessboard
 
     @property
     def active_players_cnt(self):

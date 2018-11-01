@@ -155,7 +155,12 @@ class Chessman(object):
             else:
                 return can_reach_straight(delta, 0)
         elif self.role is ChessRole.BING:
-            return delta.y >= 0 and abs(delta.x) + delta.y == 1
+            if abs(delta.x) + abs(delta.y) != 1:
+                return False
+            if self.color == ChessColor.RED:
+                return delta.y >= 0
+            else:
+                return delta.y <= 0
         elif self.role is ChessRole.SHUAI:
             absdelta = abs(delta)
             return absdelta.x + absdelta.y == 1

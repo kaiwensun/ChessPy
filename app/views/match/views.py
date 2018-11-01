@@ -83,11 +83,5 @@ def distribute_message(message):
 def handle_chessmove(message):
     data = json.loads(message['msg_data'])
     match = match_driver.get_match(current_user.user_id)
-    chessboard = match.chessboard
-    chessboard.move(
-        data['src'][0],
-        data['src'][1],
-        data['dst'][0],
-        data['dst'][1])
-    match.chessboard = chessboard
-    return str(chessboard)
+    match.move(data['src'], data['dst'])
+    return str(match.chessboard)
