@@ -1,5 +1,3 @@
-import json
-
 from flask import Blueprint
 from flask import request
 from flask import jsonify
@@ -10,7 +8,8 @@ from flask import render_template
 from flask_login import current_user
 
 from . import forms
-from app.svc.match.msg_meta import *
+from app.svc.match.msg_handler_c2s import handle_c2s
+from app.svc.match.msg_handler_s2c import handle_s2c
 
 from app.svc.membership import driver as membership_driver
 from app.svc.match import driver as match_driver
@@ -55,9 +54,7 @@ def view_match():
 
 @bp.route('receive_match_message')
 def receive_match_message():
-    match = match_driver.get_match(current_user.user_id)
-    message = match.receive_message_to(current_user.use_id)
-    return jsonify(message)
+    return jsonify(handle_s2c())
 
 
 @bp.route('send_match_message', methods=['POST'])
@@ -69,19 +66,4 @@ def send_match_message():
         'msg_type': form.msg_type.data,
         'msg_data': form.msg_data.data
     }
-    return distribute_message(message)
-
-
-def distribute_message(message):
-    handlers = {
-        MSG_TYPE_CHESSMOVE: handle_chessmove
-    }
-    handler = handlers.get(message['msg_type'])
-    return handler(message)
-
-
-def handle_chessmove(message):
-    data = json.loads(message['msg_data'])
-    match = match_driver.get_match(current_user.user_id)
-    match.move(data['src'], data['dst'])
-    return str(match.chessboard)
+    return jsonify(handle_c2s(message))

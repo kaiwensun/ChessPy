@@ -57,6 +57,8 @@ class MatchDB(object):
         key = MatchDB._genkey(table, entry_id)
         if block:
             result = redis_client.blpop(key, timeout=timeout)
+            if result is not None:
+                result = result[1]
         else:
             result = redis_client.lpop(key)
         redis_client.expire(key, ex)

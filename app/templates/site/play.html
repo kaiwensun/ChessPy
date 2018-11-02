@@ -2,6 +2,21 @@
 
 {% block js %}
     <script>
+        function fetchMatchMessage() {
+            $.ajax({
+                method: 'GET',
+                url: "{{ url_for('match.receive_match_message') }}",
+                success: function(data) {
+                    console.log('success')
+                    console.log(data);
+                },
+                error: function(data) {
+                    console.log('error');
+                    console.log(data);
+                },
+                complete: fetchMatchMessage
+            });
+        };
         function move(srcX, srcY, dstX, dstY) {
             var msg_type = "msg_type_chessmove";
             var msg_data = JSON.stringify({

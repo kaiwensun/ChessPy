@@ -156,7 +156,7 @@ def leave_match(player_uid):
 def get_match(player_uid):
     match_id = MatchDB.get(_USER_2_MATCH_ID, player_uid)
     if not match_id:
-        return exceptions.NoMatchFoundException()
+        raise exceptions.NoMatchFoundException()
     return Match.from_dict(MatchDB.get(_ALL_MATCHES, match_id))
 
 
