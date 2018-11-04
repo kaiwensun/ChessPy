@@ -20,19 +20,27 @@
     padding-top: 111.96%;
 }
 #chessboard {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    right: 0;
-    padding: 7.5%;
     background: url("/static/images/wood-1.jpg");
     background-repeat: repeat;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 
 }
-#chesssboard .chessman {
+#chessboard, .chessmen, .chessmen-slots{
+    width: 100%;
+    height: 100%;
+    padding: 4%;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    right: 0;
+}
+#chessboard-container .chessman-slot {
     font-family: "ShouShuti", "WenQuanYi Micro Hei";
+    float: left;
+    width: 11.1%;
+    height: 10%;
+    border: 1px solid red;
 }
 #chessboard-lines {
     width: 100%;

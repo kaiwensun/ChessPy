@@ -57,6 +57,14 @@
         {{ utils.render_field(match_msg_form.msg_type) }}
         {{ utils.render_field(match_msg_form.msg_data) }}
     </form>
+    <div class="chessmen-slots">
+        {% for row in range(9, -1, -1) %}
+            {% for col in range(0, 9) %}
+                <div class="chessman-slot" data-row="{{ row }}", data-col="{{ col }}">
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
 {% endblock %}
 
 {% block below_board_buttons %}
