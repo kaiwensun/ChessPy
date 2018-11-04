@@ -5,6 +5,7 @@ from flask_login import current_user
 
 from app.flask_ext import redis_client
 from app.svc.match.playground.chess_color import ChessColor
+from app.svc.match.playground.chessboard import Chessboard
 from app.svc.match.match_db import MatchDB
 from app.svc.match import msg_meta
 from app.svc.match import exceptions
@@ -44,6 +45,11 @@ class Match(object):
     @property
     def join_token(self):
         return self._join_token
+
+    @property
+    def player_color(self):
+        player_index = self.player_uids.index(current_user.user_id)
+        return self.player_colors[player_index]
 
     def to_dict(self):
         return {
@@ -94,8 +100,7 @@ class Match(object):
         }
 
     def move(self, src, dst):
-        player_index = self.player_uids.index(current_user.user_id)
-        player_color = self.player_colors[player_index]
+        player_color = self.player_color
         chessboard = self.chessboard
         if player_color != chessboard.active_player_color:
             raise exceptions.NotYourTurn()
@@ -112,7 +117,7 @@ class Match(object):
 
     @property
     def chessboard(self):
-        return match_driver.get_chessboard(self.chessboard_id)
+        return match_driver.get_chessboard(self.chessboard_id) or Chessboard()
 
     @chessboard.setter
     def chessboard(self, value):
