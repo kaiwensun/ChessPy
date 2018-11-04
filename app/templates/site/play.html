@@ -2,11 +2,51 @@
 
 {% block js %}
     <script>
-        (function() {
-
+        // (function() {
             "use strict";
-            var focusStatus = null;
 
+            var uiStatus = {
+                focus: null,
+                myturn: $('#match-data').data('inturn-onload') == $('#match-data').data('my-color'),
+                moving: false,
+                requestingMove: false
+            };
+
+            /**
+             * Move a chessman from src=(srcX, srcY) to dst=(dstX, dstY), take
+             * out the chessman at dst if there was one, fill the slot at src
+             * using a placeholder, fill the dst slot using the DOM of the moved
+             * chessman, remove the moved chessman. This function only displays
+             * the animation. It does not send messaged or validate the move.
+             */
+            function moveAnimation(srcX, srcY, dstX, dstY) {
+                if (uiStatus.moving) {
+                    return false;
+                }
+                uiStatus.moving = true;
+                var $srcSlot = $('.chessman-grid[data-px="' + srcX + '"][data-py="' + srcY + '"]');
+                var $dstSlot = $('.chessman-grid[data-px="' + dstX + '"][data-py="' + dstY + '"]');
+                var $chessman = $srcSlot.find('.chessman');
+                if (!$chessman.length) {
+                    uiStatus.moving = false;
+                    return false;
+                }
+                var chessmanDiv = $chessman[0];
+                var deltaTop = $dstSlot.position().top - $srcSlot.position().top;
+                var deltaLeft = $dstSlot.position().left - $srcSlot.position().left;
+                $chessman.css('z-index', '1');
+                $chessman.animate(
+                    {top: '+=' + deltaTop, left: '+=' + deltaLeft},
+                    3000,
+                    'swing',
+                    function() {
+                        $dstSlot.find('.chessman-slot').replaceWith($chessman.removeAttr("style"));
+                        $srcSlot.html($('<div>').addClass('chessman-slot center-item'));
+                            uiStatus.moving = false;
+                    }
+                );
+                return true;
+            }
             function fetchMatchMessage() {
                 $.ajax({
                     method: 'GET',
@@ -22,7 +62,12 @@
                     complete: fetchMatchMessage
                 });
             };
-            function move(srcX, srcY, dstX, dstY) {
+
+            function sendMoveMsg(srcX, srcY, dstX, dstY, success, error) {
+                if (uiStatus.requestingMove) {
+                    return false;
+                }
+                uiStatus.requestingMove = true;
                 var msgType = "msg_type_chessmove";
                 var msgData = JSON.stringify({
                     src: [srcX, srcY],
@@ -38,26 +83,57 @@
                     success: function(data) {
                         console.log('success');
                         console.log(data);
+                        if (success) {
+                            success();
+                        }
                     },
                     error: function(data) {
                         console.log('error');
                         console.log(data);
+                        if (error) {
+                            error();
+                        }
+                    },
+                    complete: function() {
+                        uiStatus.requestingMove = false;
                     }
                 });
             };
-            function moveChessmanUI(srcX, srcY, dstX, dstY) {
-                var locator = '[data-px="' + srcX + '"][data-py="' + srcY + '"]';
-                var $chessman = $('.chessman' + locator)
-            }
-            $('#chessboard').on('.chessmen-slot', 'click', function() {
-                var $slot = $(this);
-                if ($slot.hasClass('chessman')) {
 
+            function playOneStep(srcX, srcY, dstX, dstY) {
+                sendMoveMsg(srcX, srcY, dstX, dstY, function() {
+                    moveAnimation(srcX, srcY, dstX, dstY);
+                });
+            }
+
+            $('#chessboard .chessmen-slots').on('click', '.chessman-slot', function() {
+                if (uiStatus.requestingMove || uiStatus.moving || !uiStatus.myturn) {
+                    return false;
+                }
+                var $slot = $(this);
+                var $chessmanGrid = $slot.parent();
+                var targetXY = [$chessmanGrid.data('px'), $chessmanGrid.data('py')];
+                if ($slot.hasClass('chessman')) {
+                    var $chessman = $slot;
+                    var $matchData = $('#match-data');
+                    if ($matchData.data('my-color') == $chessman.data('color')) {                        
+                        uiStatus.focus = targetXY;
+                    } else {
+                        if (uiStatus.focus) {
+                            playOneStep(uiStatus.focus[0], uiStatus.focus[0], targetXY[0], targetXY[1]);
+                        } else {
+                            // no action
+                        }
+                    }
                 } else {
-                    
+                    if (uiStatus.focus) {
+                        playOneStep(uiStatus.focus[0], uiStatus.focus[0], targetXY[0], targetXY[1]);
+                    } else {
+                        // no action
+                    }
                 }
             });
-        })();
+        // })();
     </script>
 {% endblock %}
 
@@ -75,15 +151,21 @@
         {{ utils.render_field(match_msg_form.msg_type) }}
         {{ utils.render_field(match_msg_form.msg_data) }}
     </form>
-    <div class="chessmen-slot">
+    <div
+        id="match-data"
+        data-my-color="{{ match.player_color.value }}"
+        data-inturn-onload="{{ match.chessboard.active_player_color.value }}"
+        >
+    </div>
+    <div class="chessmen-slots">
         {% set chessboard = match.chessboard %}
         {% for row in range(9, -1, -1) %}
             {% for col in range(0, 9) %}
-                <div class="chessman-grid center-item" data-row="{{ row }}", data-col="{{ col }}">
+                <div class="chessman-grid center-item" data-px="{{ col }}" data-py="{{ row }}">
                     {% set chessman = chessboard.get_chessman((col, row)) %}
                     {% if chessman %}
                         {% set position = chessman.position %}
-                        <div class="chessman-slot chessman center-item {{ 'chess-red' if chessman.color.value == 'red' else 'chess-black' }}" data-px="{{ position.x }}" data-py="{{ position.y }}">
+                        <div class="chessman-slot chessman center-item" data-color={{ chessman.color.value }}>
                             <div class="chessman-char center-item">{{ chessman.char }}</div>
                         </div>
                     {% else %}
