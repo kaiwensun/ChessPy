@@ -2,44 +2,62 @@
 
 {% block js %}
     <script>
-        function fetchMatchMessage() {
-            $.ajax({
-                method: 'GET',
-                url: "{{ url_for('match.receive_match_message') }}",
-                success: function(data) {
-                    console.log('success')
-                    console.log(data);
-                },
-                error: function(data) {
-                    console.log('error');
-                    console.log(data);
-                },
-                complete: fetchMatchMessage
-            });
-        };
-        function move(srcX, srcY, dstX, dstY) {
-            var msg_type = "msg_type_chessmove";
-            var msg_data = JSON.stringify({
-                src: [srcX, srcY],
-                dst: [dstX, dstY]
-            });
-            var $msgForm = $('#match-message-form');
-            $msgForm.find('#msg_type').val(msg_type);
-            $msgForm.find('#msg_data').val(msg_data);
-            $.ajax({
-                method: 'POST',
-                url: "{{ url_for('match.send_match_message') }}",
-                data: $msgForm.serialize(),
-                success: function(data) {
-                    console.log('success');
-                    console.log(data);
-                },
-                error: function(data) {
-                    console.log('error');
-                    console.log(data);
+        (function() {
+
+            "use strict";
+            var focusStatus = null;
+
+            function fetchMatchMessage() {
+                $.ajax({
+                    method: 'GET',
+                    url: "{{ url_for('match.receive_match_message') }}",
+                    success: function(data) {
+                        console.log('success')
+                        console.log(data);
+                    },
+                    error: function(data) {
+                        console.log('error');
+                        console.log(data);
+                    },
+                    complete: fetchMatchMessage
+                });
+            };
+            function move(srcX, srcY, dstX, dstY) {
+                var msgType = "msg_type_chessmove";
+                var msgData = JSON.stringify({
+                    src: [srcX, srcY],
+                    dst: [dstX, dstY]
+                });
+                var $msgForm = $('#match-message-form');
+                $msgForm.find('#msg_type').val(msgType);
+                $msgForm.find('#msg_data').val(msgData);
+                $.ajax({
+                    method: 'POST',
+                    url: "{{ url_for('match.send_match_message') }}",
+                    data: $msgForm.serialize(),
+                    success: function(data) {
+                        console.log('success');
+                        console.log(data);
+                    },
+                    error: function(data) {
+                        console.log('error');
+                        console.log(data);
+                    }
+                });
+            };
+            function moveChessmanUI(srcX, srcY, dstX, dstY) {
+                var locator = '[data-px="' + srcX + '"][data-py="' + srcY + '"]';
+                var $chessman = $('.chessman' + locator)
+            }
+            $('#chessboard').on('.chessmen-slot', 'click', function() {
+                var $slot = $(this);
+                if ($slot.hasClass('chessman')) {
+
+                } else {
+                    
                 }
             });
-        };
+        })();
     </script>
 {% endblock %}
 
@@ -57,6 +75,25 @@
         {{ utils.render_field(match_msg_form.msg_type) }}
         {{ utils.render_field(match_msg_form.msg_data) }}
     </form>
+    <div class="chessmen-slot">
+        {% set chessboard = match.chessboard %}
+        {% for row in range(9, -1, -1) %}
+            {% for col in range(0, 9) %}
+                <div class="chessman-grid center-item" data-row="{{ row }}", data-col="{{ col }}">
+                    {% set chessman = chessboard.get_chessman((col, row)) %}
+                    {% if chessman %}
+                        {% set position = chessman.position %}
+                        <div class="chessman-slot chessman center-item {{ 'chess-red' if chessman.color.value == 'red' else 'chess-black' }}" data-px="{{ position.x }}" data-py="{{ position.y }}">
+                            <div class="chessman-char center-item">{{ chessman.char }}</div>
+                        </div>
+                    {% else %}
+                        <div class="chessman-slot center-item">
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
 {% endblock %}
 
 {% block below_board_buttons %}

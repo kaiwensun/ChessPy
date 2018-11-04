@@ -16,6 +16,16 @@
     <link rel="stylesheet" href="{{ utils.static_url_for('css/modal.css') }}" />
     <link rel="stylesheet" href="{{ utils.static_url_for('css/chessboard.css') }}" />
     <link rel="stylesheet" href="{{ utils.static_url_for('css/button.css') }}" />
+    <style>
+        @font-face {
+            font-family: "WenQuanYi Micro Hei";
+            src: url("{{ utils.static_url_for('fonts/WenQuanYi Micro Hei.woff') }}");
+        }
+        @font-face {
+            font-family: "ShaTiXingShu";
+            src: url("{{ utils.static_url_for('fonts/ShaTiXingShu.woff') }}");
+        }
+    </style>
     {% block css %}
     {% endblock %}
 </head>

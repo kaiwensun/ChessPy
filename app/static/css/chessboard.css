@@ -3,7 +3,7 @@
     background-repeat: repeat;
 }
 #content {
-    font-size: calc((100vh - 80px - 30px - 10vh) * 0.005);
+    font-size: 0.621vw;
     display: flex;
     flex-flow: column nowrap;
     align-items: stretch;
@@ -13,6 +13,11 @@
     width: 100%;
     max-width: calc((100vh - 80px - 30px - 10vh) * 0.8932);
 }
+@media(min-width: 712px) {
+    #content {
+        font-size: calc((100vh - 80px - 30px - 10vh) * 0.005);
+    }
+}
 #chessboard-container {
     position: relative;
     display: block;
@@ -20,16 +25,62 @@
     padding-top: 111.96%;
 }
 #chessboard {
+    background: url("/static/images/wood-1.jpg");
+    background-repeat: repeat;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+
+}
+#chessboard, .chessmen-slot{
+    width: 100%;
+    height: 100%;
+    padding: 4%;
     position: absolute;
     top: 0;
     right: 0;
     bottom: 0;
     right: 0;
-    padding: 7.5%;
-    background: url("/static/images/wood-1.jpg");
-    background-repeat: repeat;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-
+}
+#chessboard-container .chessman-grid {
+    font-family: "ShaTiXingShu", "WenQuanYi Micro Hei";
+    float: left;
+    width: 11.1%;
+    height: 10%;
+}
+.chessman-grid .chessman-slot {
+    position: relative;
+    width: 90%;
+    height: 90%;
+    border-radius: 50%;
+    border: 1px solid red;
+}
+.chessman-grid .chessman {
+    background: url("/static/images/wood-5.jpg");
+    box-shadow: 1em 1em 1em #6F6767,
+                0em 1em 0.5em #cccccc inset,
+                1em 0 0.5em #cccccc inset,
+                0 -1em 0.5em #cccccc inset,
+                -1em 0 0.5em #cccccc inset;
+}
+.chessman-grid .chessman {
+    background: url("/static/images/wood-5.jpg");
+    box-shadow: 1em 1em 1em #6F6767,
+                0em 1em 0.5em #cccccc inset,
+                1em 0 0.5em #cccccc inset,
+                0 -1em 0.5em #cccccc inset,
+                -1em 0 0.5em #cccccc inset;
+    cursor: pointer;
+}
+.chessman.chess-red {
+    color: #ff3333;
+}
+.chessman.chess-black {
+    color: #333333;
+}
+.chessman .chessman-char {
+    width: 100%;
+    height: 100%;
+    font-size: 15em;
+    line-height: 100%;
 }
 #chessboard-lines {
     width: 100%;
@@ -44,4 +95,9 @@
     flex-flow: row wrap;
     align-items: center;
     justify-content: space-around;
+}
+.center-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }

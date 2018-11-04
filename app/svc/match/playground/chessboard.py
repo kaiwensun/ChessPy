@@ -76,8 +76,12 @@ class Chessboard(object):
         return None
 
     def get_chessman(self, position):
-        chess_id = self._board[position.x][position.y]
-        return chess_id and self._chessmen[chess_id]
+        if isinstance(position, GlobalPosition):
+            position = (position.x, position.y)
+        chess_id = self._board[position[0]][position[1]]
+        if chess_id is not None:
+            return self._chessmen[chess_id]
+        return None
 
     def pick_up(self, chess_id):
         chessman = self._chessmen[chess_id]
@@ -156,6 +160,8 @@ class Chessboard(object):
 
     @staticmethod
     def from_dict(data):
+        if data is None:
+            return None
         active_player_color = ChessColor(data['active_player_color'])
         chessmen = [Chessman.from_dict(chessman_dict)
                     for chessman_dict in data['chessmen']]

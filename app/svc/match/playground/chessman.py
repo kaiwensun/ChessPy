@@ -94,7 +94,8 @@ class Chessman(object):
             elif py in [3, 4]:
                 return px in [0, 2, 4, 6, 8]
         elif self.role is ChessRole.SHUAI:
-            return px >= 3 and px <= 5 and py >= 0 and py <= 2
+            return (3 <= px and px <= 5) and (
+                (0 <= py and py <= 2) or (py <= 7 and py <= 9))
         return False
 
     def can_reach(self, position, chessboard):
@@ -163,7 +164,12 @@ class Chessman(object):
                 return delta.y <= 0
         elif self.role is ChessRole.SHUAI:
             absdelta = abs(delta)
-            return absdelta.x + absdelta.y == 1
+            if absdelta.x + absdelta.y == 1:
+                return True
+            if (dst_chessman.color != self.color
+                    and dst_chessman.role == self.role):
+                return True
+            return False
         else:
             raise ValueError(self.role)
 
