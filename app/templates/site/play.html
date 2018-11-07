@@ -5,6 +5,22 @@
         // (function() {
             "use strict";
 
+            setInterval(function() {
+                var msgType = "msg_type_heartbeat";
+                var msgData = "OK";
+                debugger
+                sendMessage(msgType, msgData,
+                    function(data) {
+                        console.log('success');
+                        console.log(data);
+                    },
+                    function() {
+                        console.log('error');
+                        console.log('you are off line.');
+                    }
+                );
+            }, 2000);
+
             var uiStatus = {
                 focus: null,
                 myturn: $('#match-data').data('inturn-onload') == $('#match-data').data('my-color'),
@@ -63,6 +79,20 @@
                 });
             };
 
+            function sendMessage(msgType, msgData, success, error, complete) {
+                var $msgForm = $('#match-message-form');
+                $msgForm.find('#msg_type').val(msgType);
+                $msgForm.find('#msg_data').val(msgData);
+                $.ajax({
+                    method: 'POST',
+                    url: "{{ url_for('match.send_match_message') }}",
+                    data: $msgForm.serialize(),
+                    success: success,
+                    error: error,
+                    complete: complete
+                });
+            }
+
             function sendMoveMsg(srcX, srcY, dstX, dstY, success, error) {
                 if (uiStatus.requestingMove) {
                     return false;
@@ -73,30 +103,8 @@
                     src: [srcX, srcY],
                     dst: [dstX, dstY]
                 });
-                var $msgForm = $('#match-message-form');
-                $msgForm.find('#msg_type').val(msgType);
-                $msgForm.find('#msg_data').val(msgData);
-                $.ajax({
-                    method: 'POST',
-                    url: "{{ url_for('match.send_match_message') }}",
-                    data: $msgForm.serialize(),
-                    success: function(data) {
-                        console.log('success');
-                        console.log(data);
-                        if (success) {
-                            success();
-                        }
-                    },
-                    error: function(data) {
-                        console.log('error');
-                        console.log(data);
-                        if (error) {
-                            error();
-                        }
-                    },
-                    complete: function() {
-                        uiStatus.requestingMove = false;
-                    }
+                sendMessage(msgType, msgData, success, error, function() {
+                    uiStatus.requestingMove = false;
                 });
             };
 
