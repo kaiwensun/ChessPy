@@ -41,7 +41,8 @@ class MatchDB(object):
     def get(table, entry_id, ex=settings.GAME_TTL):
         key = MatchDB._genkey(table, entry_id)
         result = redis_client.get(key)
-        redis_client.expire(key, ex)
+        if ex is not None:
+            redis_client.expire(key, ex)
         return MatchDB._repr2obj(result)
 
     @staticmethod
