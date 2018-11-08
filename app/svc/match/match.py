@@ -93,7 +93,7 @@ class Match(object):
 
     def receive_message_to(self, my_uid):
         channel_name = self._channel_to(my_uid)
-        message = MatchDB.dequeue('match_channel', channel_name, True)
+        message = MatchDB.dequeue('match_channel', channel_name, False)
         return message or {
             'msg_type': msg_meta.MSG_TYPE_NOP,
             'msg_data': None

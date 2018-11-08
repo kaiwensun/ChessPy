@@ -1,3 +1,6 @@
+import json
+import time
+
 from flask import Blueprint
 from flask import request
 from flask import jsonify
@@ -5,11 +8,14 @@ from flask import session
 from flask import redirect
 from flask import url_for
 from flask import render_template
+from flask import Response
+from flask import stream_with_context
 from flask_login import current_user
 
 from . import forms
 from app.svc.match.msg_handler_c2s import handle_c2s
 from app.svc.match.msg_handler_s2c import handle_s2c
+from app.svc.match.msg_meta import MSG_TYPE_NOP
 
 from app.svc.membership import driver as membership_driver
 from app.svc.match import driver as match_driver
@@ -54,7 +60,16 @@ def view_match():
 
 @bp.route('receive_match_message')
 def receive_match_message():
-    return jsonify(handle_s2c())
+    def yield_message():
+        while True:
+            rval = handle_s2c()
+            if rval.get('msg_type') == MSG_TYPE_NOP:
+                yield ': nop\n\n'
+                time.sleep(0.5)
+            else:
+                yield 'data: {}\n\n'.format(json.dumps(rval))
+    return Response(stream_with_context(yield_message()),
+                    mimetype='text/event-stream')
 
 
 @bp.route('send_match_message', methods=['POST'])
