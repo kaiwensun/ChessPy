@@ -5,25 +5,30 @@
         // (function() {
             "use strict";
 
+
+            var uiStatus = {
+                focus: null,
+                myturn: $('#match-data').data('inturn-onload') == $('#match-data').data('my-color'),
+                moving: false,
+                requestingMove: false,
+                anotherPlayerReady: false
+            };
+
             setInterval(function() {
                 var msgType = "msg_type_heartbeat";
                 var msgData = "OK";
                 sendMessage(msgType, msgData,
                     function(data) {
                         console.log(data);
+                        if (data.another) {
+                            uiStatus.anotherPlayerReady = true;
+                        }
                     },
                     function() {
                         console.log('you are off line.');
                     }
                 );
             }, 2000);
-
-            var uiStatus = {
-                focus: null,
-                myturn: $('#match-data').data('inturn-onload') == $('#match-data').data('my-color'),
-                moving: false,
-                requestingMove: false
-            };
 
             /**
              * Move a chessman from src=(srcX, srcY) to dst=(dstX, dstY), take
@@ -123,7 +128,7 @@
             }
 
             $('#chessboard .chessmen-slots').on('click', '.chessman-slot', function() {
-                if (uiStatus.requestingMove || uiStatus.moving || !uiStatus.myturn) {
+                if (uiStatus.requestingMove || uiStatus.moving || !uiStatus.myturn || !uiStatus.anotherPlayerReady) {
                     return false;
                 }
                 var $slot = $(this);

@@ -117,7 +117,7 @@ class Match(object):
 
     @property
     def chessboard(self):
-        return match_driver.get_chessboard(self.chessboard_id) or Chessboard()
+        return match_driver.get_chessboard(self.chessboard_id)
 
     @chessboard.setter
     def chessboard(self, value):
