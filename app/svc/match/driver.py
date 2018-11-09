@@ -63,8 +63,6 @@ def join_match(player_uid, join_token):
             match.set_player2(player_uid)
             MatchDB.set(_USER_2_MATCH_ID, player_uid, match.match_id)
             MatchDB.set(_ALL_MATCHES, match_id, match.to_dict())
-            chessboard = Chessboard()
-            MatchDB.set(_CHESSBOARD, match.chessboard_id, chessboard.to_dict())
         match.send_message_from(
             player_uid,
             msg_meta.MSG_TYPE_CONTROL,
@@ -107,6 +105,8 @@ def _create_match(player_uid1, join_token):
         raise exceptions.InvalidMatchState(
             'Match {} is already created'.format(
                 match.match_id))
+    chessboard = Chessboard()
+    MatchDB.set(_CHESSBOARD, match.chessboard_id, chessboard.to_dict())
     return match
 
 
