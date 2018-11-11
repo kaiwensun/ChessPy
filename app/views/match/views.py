@@ -32,7 +32,7 @@ def join_private_match():
         current_user.user_id, form.join_token.data)
     if not match:
         return 'error 2'
-    return jsonify(match.to_dict())
+    return redirect(url_for('match.view_match'))
 
 
 @bp.route('join_public_match', methods=['POST'])
@@ -44,18 +44,15 @@ def join_public_match():
         current_user.user_id, None)
     if not match:
         return 'error 2'
-    match_msg_form = forms.MessageForm()
-    return render_template('site/play.html', match=match,
-                           match_msg_form=match_msg_form)
+    return redirect(url_for('match.view_match'))
 
 
 @bp.route('view_match')
 def view_match():
     match = match_driver.get_match(current_user.user_id)
-    if match:
-        return jsonify(match.to_dict())
-    else:
-        return 'error'
+    match_msg_form = forms.MessageForm()
+    return render_template('site/play.html', match=match,
+                           match_msg_form=match_msg_form)
 
 
 @bp.route('receive_match_message')
