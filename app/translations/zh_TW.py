@@ -31,5 +31,7 @@ DICT = {
     "Go back": "返回",
     "The other play requests an undo.": "對方請求悔棋",
     "Agree": "同意",
-    "Disagree": "拒絕"
+    "Disagree": "拒絕",
+    "Red wins!": "紅方勝！",
+    "Black wins!": "黑方勝！"
 }

@@ -111,8 +111,9 @@ class Match(object):
         chessboard = self.chessboard
         if player_color != chessboard.active_player_color:
             raise exceptions.NotYourTurn()
-        chessboard.move(src[0], src[1], dst[0], dst[1])
+        target_chessman = chessboard.move(src[0], src[1], dst[0], dst[1])
         self.chessboard = chessboard
+        return target_chessman
 
     def lock_and_get_chessboard(self):
         redis_lock, acquired = MatchDB.lock(

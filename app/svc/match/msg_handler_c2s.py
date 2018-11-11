@@ -6,6 +6,7 @@ from app.svc.match.msg_meta import *
 from app.svc.match import driver as match_driver
 from app.svc.match.match_db import MatchDB
 from app.svc.match.playground.chessman import Chessman
+from app.svc.match.playground.chess_role import ChessRole
 
 
 def handle_c2s(message):
@@ -23,9 +24,15 @@ def handle_chessmove(message):
     msg_type = message['msg_type']
     msg_data = json.loads(message['msg_data'])
     match = match_driver.get_match(current_user.user_id)
-    match.move(msg_data['src'], msg_data['dst'])
+    killed_chessman = match.move(msg_data['src'], msg_data['dst'])
     match.send_message_from(current_user.user_id, msg_type, msg_data)
-    return {'chessboard': str(match.chessboard)}
+    rval = {'chessboard': str(match.chessboard)}
+    if killed_chessman and killed_chessman.role == ChessRole.SHUAI:
+        msg_type = MSG_TYPE_MATCHEND
+        msg_data = {'winner': match.player_color.value}
+        for player_uid in match.player_uids:
+            match.send_message_from(player_uid, msg_type, msg_data)
+    return rval
 
 
 def handle_heartbeat(message):

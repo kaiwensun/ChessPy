@@ -4,6 +4,7 @@ MSG_TYPE_NOP = 'msg_type_nop'
 MSG_TYPE_HEARTBEAT = 'msg_type_heartbeat'
 MSG_TYPE_UNDOREQ = 'msg_type_undoReq'
 MSG_TYPE_REPLYUNDOREQ = 'msg_type_replyUndoReq'
+MSG_TYPE_MATCHEND = 'msg_type_matchEnd'
 
 # tell the other player "I am about to leave the match!"
 MSG_CONST_LEFT = 'msg_const_left'
