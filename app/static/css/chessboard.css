@@ -40,20 +40,20 @@
     bottom: 0;
     right: 0;
 }
-#chessboard-container .chessman-grid {
+#chessboard-container .chessman-slot {
     font-family: "ShaTiXingShu", "WenQuanYi Micro Hei";
     float: left;
     width: 11.1%;
     height: 10%;
 }
-.chessman-grid .chessman-slot {
+.chessman-slot .chessman-placeholder {
     position: relative;
     width: 90%;
     height: 90%;
     border-radius: 50%;
     border: 1px solid red;
 }
-.chessman-grid .chessman {
+.chessman-slot .chessman {
     background: url("/static/images/wood-5.jpg");
     box-shadow: 1em 1em 1em #6F6767,
                 0em 1em 0.5em #cccccc inset,
@@ -61,7 +61,7 @@
                 0 -1em 0.5em #cccccc inset,
                 -1em 0 0.5em #cccccc inset;
 }
-.chessman-grid .chessman {
+.chessman-slot .chessman {
     background: url("/static/images/wood-5.jpg");
     box-shadow: 1em 1em 1em #6F6767,
                 0em 1em 0.5em #cccccc inset,

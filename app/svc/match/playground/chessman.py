@@ -26,7 +26,7 @@ class Chessman(object):
         self._role = Chessman.id2role(chess_id)
         self._init_global_position = Chessman._calc_init_position(chess_id)
         self._current_position = Chessman._calc_init_position(chess_id)
-        self._char = Chessman._role2char(self.role, self.color)
+        self._char = Chessman.role2char(self.role, self.color)
 
     def __str__(self):
         return self.char
@@ -208,7 +208,7 @@ class Chessman(object):
         return role_map[mirrored_id // 2]
 
     @staticmethod
-    def _role2char(role, color=ChessColor.RED):
+    def role2char(role, color=ChessColor.RED):
         charset = {
             ChessColor.RED: {
                 ChessRole.SHI: "仕",
