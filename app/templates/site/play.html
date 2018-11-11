@@ -136,7 +136,17 @@
                     uiStatus.myturn = true;
                 },
                 'msg_type_undoReq': function(msgData) {
-                    bootbox.confirm("The other play requests an undo.", replyUndoRequest)
+                    bootbox.confirm({
+                        message: "{{ utils.gettext('The other play requests an undo.') }}",
+                        buttons: {
+                            confirm: {
+                                label: "{{ utils.gettext('Agree') }}"
+                            },
+                            cancel: {
+                                label: "{{ utils.gettext('Disagree') }}"
+                            }
+                        },
+                        callback: replyUndoRequest});
                 },
                 'msg_type_replyUndoReq': function(msgData) {
                     if (msgData.approved) {
