@@ -14,7 +14,8 @@
                 myturn: $('#match-data').data('inturn-onload') == $('#match-data').data('my-color'),
                 moving: false,
                 requestingMove: false,
-                anotherPlayerReady: false
+                anotherPlayerReady: false,
+                matchEnd: $('#match-data').data('game-is-over')      // if anotherPlayerReady is true, matchEnd must be true.
             };
 
             /* mapping from chess_id to chessman */
@@ -155,6 +156,15 @@
                     } else {
                         console.log('The other play denied your undo request.')
                     }
+                },
+                'msg_type_matchEnd': function(data) {
+                    uiStatus.matchEnd = true;
+                    if (data.winner == 'red') {
+                        var text = "{{ utils.gettext('Red wins!') }}";
+                    } else {
+                        var text = "{{ utils.gettext('Black wins!') }}";
+                    }
+                    bootbox.alert(text);
                 }
             }
 
@@ -199,7 +209,7 @@
             }
 
             function sendMoveMsg(srcX, srcY, dstX, dstY, success, error) {
-                if (uiStatus.requestingMove) {
+                if (uiStatus.requestingMove || uiStatus.matchEnd) {
                     return false;
                 }
                 uiStatus.requestingMove = true;
@@ -214,6 +224,9 @@
             };
 
             function replyUndoRequest(approved) {
+                if (uiStatus.matchEnd) {
+                    return;
+                }
                 var msgType = "msg_type_replyUndoReq";
                 var msgData = JSON.stringify({'approved': approved});
                 sendMessage(msgType, msgData, function(data) {
@@ -225,7 +238,7 @@
             }
 
             $('.undo').on('click', function(evt) {
-                if (uiStatus.anotherPlayerReady && !uiStatus.myturn && !uiStatus.moving && !uiStatus.requestingMove) {
+                if (uiStatus.anotherPlayerReady && !uiStatus.myturn && !uiStatus.moving && !uiStatus.requestingMove && !uiStatus.matchEnd) {
                     var msgType = "msg_type_undoReq";
                     var msgData = 'dummy';
                     sendMessage(msgType, msgData, function(data) {
@@ -238,13 +251,17 @@
                 }
             });
 
-            setInterval(function() {
+            var heartbeatTimerId = setInterval(function() {
+                if (uiStatus.matchEnd) {
+                    clearInterval(heartbeatTimerId);
+                    return;
+                }
                 var msgType = "msg_type_heartbeat";
                 var msgData = "OK";
                 sendMessage(msgType, msgData,
                     function(data) {
                         console.log(data);
-                        if (data.another) {
+                        if (data.another && !uiStatus.matchEnd) {
                             uiStatus.anotherPlayerReady = true;
                         }
                     },
@@ -280,6 +297,7 @@
         id="match-data"
         data-my-color="{{ match.player_color.value }}"
         data-inturn-onload="{{ match.chessboard.active_player_color.value }}"
+        data-game-is-over="{{ 'true' if match.chessboard.game_is_over() else 'false' }}"
         >
     </div>
     <div class="chessmen-slots">

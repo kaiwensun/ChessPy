@@ -110,6 +110,8 @@ class Chessboard(object):
             self._active_player_color = ChessColor.BLACK
 
     def move(self, src_x, src_y, dst_x, dst_y):
+        if self.game_is_over():
+            raise ValueError('Game is over')
         src = GlobalPosition(src_x, src_y)
         chessman = self.get_chessman(src)
         if not chessman:
@@ -129,6 +131,7 @@ class Chessboard(object):
             self.put_at(chess_id, dst)
             self._change_active_player()
             self._move_history.move(chess_id, src, dst, target and target.id)
+            return target
         else:
             raise ValueError(
                 "Can't move {} from {} to {}".format(
@@ -153,13 +156,17 @@ class Chessboard(object):
         return step
 
     def can_undo(self):
-        if len(self._move_history) == 0:
+        if len(self._move_history) == 0 or self.game_is_over():
             return False
         move_step = self._move_history[-1]
         chess_id = move_step['chess_id']
         if Chessman.id2color(chess_id) == self.active_player_color:
             return False
         return True
+
+    def game_is_over(self):
+        # 15 and 31 are chess_id of the two SHUAI (kings)
+        return not bool(self._chessmen[15] and self._chessmen[31])
 
     @property
     def active_player_color(self):
