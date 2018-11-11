@@ -28,5 +28,8 @@ DICT = {
     "Sign out": "退出登录",
     "See you next time!": "下次见！",
     "Anonymous hero": "无名英雄",
-    "Go back": "返回"
+    "Go back": "返回",
+    "The other play requests an undo.": "对方请求悔棋。",
+    "Agree": "同意",
+    "Disagree": "拒绝"
 }
