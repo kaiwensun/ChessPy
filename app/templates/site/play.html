@@ -58,7 +58,7 @@
                 $chessman.css('z-index', '1');
                 $chessman.animate(
                     {top: '+=' + deltaTop, left: '+=' + deltaLeft},
-                    1000,
+                    500,
                     'swing',
                     function() {
                         $dstSlot.find('.chessman-slot').replaceWith($chessman.removeAttr("style"));
