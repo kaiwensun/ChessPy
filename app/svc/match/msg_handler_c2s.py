@@ -67,8 +67,8 @@ def handle_reply_undo_request(message):
             MSG_TYPE_REPLYUNDOREQ,
             msg_data)
         return msg_data
-    lock, chessboard = match.lock_and_get_chessboard()
     try:
+        lock, chessboard = match.lock_and_get_chessboard()
         if not chessboard:
             match.send_message_from(
                 current_user.user_id,
@@ -86,9 +86,11 @@ def handle_reply_undo_request(message):
         step['undone_color'] = Chessman.id2color(step['chess_id']).value
         kill_chess_id = step['kill_chess_id']
         if kill_chess_id is not None:
-            step['killed_color'] = Chessman.id2color(kill_chess_id).value
+            killed_color = Chessman.id2color(kill_chess_id)
+            step['killed_color'] = killed_color.value
             step['killed_char'] = Chessman.role2char(
-                Chessman.id2role(kill_chess_id))
+                Chessman.id2role(kill_chess_id),
+                color=killed_color)
         msg_data = {'approved': True,
                     'step': step}
         match.send_message_from(
