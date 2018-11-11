@@ -15,16 +15,6 @@ _PUBLIC_PENDING_MATCH_IDS = 'public_pending_match_ids'
 _CHESSBOARD = 'chessboard'
 
 
-def _lock(typ, key, blocking=False):
-    lock_id = 'lock-{}-{}'.format(typ, key)
-    print("locking {}.".format(lock_id))
-    lock = redis_client.lock(lock_id)
-    acquired = lock.acquire(blocking=blocking)
-    print("{} to acquire lock {}".format(
-        'succeed' if acquired else 'failed', lock_id))
-    return lock, acquired
-
-
 def join_match(player_uid, join_token):
     try:
         _register_player(player_uid, bool(join_token))

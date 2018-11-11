@@ -11,6 +11,8 @@ from app.svc.match import msg_meta
 from app.svc.match import exceptions
 from app.svc.match import driver as match_driver
 
+from config import settings
+
 
 class Match(object):
     def __init__(self, player1_uid, join_token):
@@ -37,6 +39,11 @@ class Match(object):
     @property
     def player_uids(self):
         return self._player_uids.copy()
+
+    @property
+    def another_player_uid(self):
+        return [
+            uid for uid in self.player_uids if uid != current_user.user_id][0]
 
     @property
     def player_colors(self):
@@ -106,6 +113,14 @@ class Match(object):
             raise exceptions.NotYourTurn()
         chessboard.move(src[0], src[1], dst[0], dst[1])
         self.chessboard = chessboard
+
+    def lock_and_get_chessboard(self):
+        redis_lock, acquired = MatchDB.lock(
+            'chessboard', self.match_id, settings.GAME_TTL)
+        if not acquired:
+            return redis_lock, None
+        else:
+            return redis_lock, self.chessboard
 
     @property
     def active_players_cnt(self):

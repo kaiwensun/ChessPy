@@ -103,6 +103,12 @@ class Chessboard(object):
             self._chessmen[chess_id] = chessman
         chessman.position = position
 
+    def _change_active_player(self):
+        if self._active_player_color == ChessColor.BLACK:
+            self._active_player_color = ChessColor.RED
+        else:
+            self._active_player_color = ChessColor.BLACK
+
     def move(self, src_x, src_y, dst_x, dst_y):
         src = GlobalPosition(src_x, src_y)
         chessman = self.get_chessman(src)
@@ -121,17 +127,32 @@ class Chessboard(object):
                 self.kill(target.id)
             self.pick_up(chess_id)
             self.put_at(chess_id, dst)
-            if self._active_player_color == ChessColor.BLACK:
-                self._active_player_color = ChessColor.RED
-            else:
-                self._active_player_color = ChessColor.BLACK
+            self._change_active_player()
             self._move_history.move(chess_id, src, dst, target and target.id)
         else:
             raise ValueError(
                 "Can't move {} from {} to {}".format(
                     chessman, src, dst))
 
-    def can_retract(self):
+    def undo(self):
+        if not self.can_undo():
+            return None
+        step = self._move_history.retract()
+        chess_id = step['chess_id']
+        from_posi = GlobalPosition(
+            step['from_posi']['x'],
+            step['from_posi']['y'])
+        self.pick_up(chess_id)
+        self.put_at(chess_id, from_posi)
+        kill_chess_id = step['kill_chess_id']
+        if kill_chess_id is not None:
+            to_posi = GlobalPosition(
+                step['to_posi']['x'], step['to_posi']['y'])
+            self.put_at(kill_chess_id, to_posi)
+        self._change_active_player()
+        return step
+
+    def can_undo(self):
         if len(self._move_history) == 0:
             return False
         move_step = self._move_history[-1]
@@ -139,12 +160,6 @@ class Chessboard(object):
         if Chessman.id2color(chess_id) == self.active_player_color:
             return False
         return True
-
-    def retrace(self):
-        if self.can_retract():
-            return self._move_history.retract()
-        else:
-            return None
 
     @property
     def active_player_color(self):

@@ -1,10 +1,13 @@
 {% extends "layout/chessboard_layout.html" %}
 
 {% block js %}
+    <script src="{{ utils.static_url_for('lib/fittext/jquery.fittext.js') }}"></script>
     <script>
         // (function() {
             "use strict";
 
+
+            $(".chessman-char").fitText(0.1);
 
             var uiStatus = {
                 focus: null,
@@ -14,21 +17,41 @@
                 anotherPlayerReady: false
             };
 
-            setInterval(function() {
-                var msgType = "msg_type_heartbeat";
-                var msgData = "OK";
-                sendMessage(msgType, msgData,
-                    function(data) {
-                        console.log(data);
-                        if (data.another) {
-                            uiStatus.anotherPlayerReady = true;
+            /* mapping from chess_id to chessman */
+            var killedChessmen = {};
+
+            /**
+             * Listen to mouse click on chessmen. Act accordingly.
+             */
+            $('#chessboard .chessmen-slots').on('click', '.chessman-placeholder', function() {
+                if (uiStatus.requestingMove || uiStatus.moving || !uiStatus.myturn || !uiStatus.anotherPlayerReady) {
+                    return false;
+                }
+                var $slot = $(this);
+                var $chessmanGrid = $slot.parent();
+                var targetXY = [$chessmanGrid.data('px'), $chessmanGrid.data('py')];
+                var canPlayOneStep = false;
+                if ($slot.hasClass('chessman')) {
+                    var $chessman = $slot;
+                    var $matchData = $('#match-data');
+                    if ($matchData.data('my-color') == $chessman.data('color')) {
+                        uiStatus.focus = targetXY;
+                    } else {
+                        if (uiStatus.focus) {
+                            canPlayOneStep = true;
                         }
-                    },
-                    function() {
-                        console.log('you are off line.');
                     }
-                );
-            }, 2000);
+                } else {
+                    if (uiStatus.focus) {
+                        canPlayOneStep = true;
+                    }
+                }
+                if (canPlayOneStep) {
+                    playOneStep(uiStatus.focus[0], uiStatus.focus[1], targetXY[0], targetXY[1]);
+                    uiStatus.focus = null;
+                    uiStatus.myturn = false;
+                }
+            });
 
             /**
              * Move a chessman from src=(srcX, srcY) to dst=(dstX, dstY), take
@@ -37,13 +60,13 @@
              * chessman, remove the moved chessman. This function only displays
              * the animation. It does not send messaged or validate the move.
              */
-            function moveAnimation(srcX, srcY, dstX, dstY) {
+            function moveAnimation(srcX, srcY, dstX, dstY, callback) {
                 if (uiStatus.moving) {
                     return false;
                 }
                 uiStatus.moving = true;
-                var $srcSlot = $('.chessman-grid[data-px="' + srcX + '"][data-py="' + srcY + '"]');
-                var $dstSlot = $('.chessman-grid[data-px="' + dstX + '"][data-py="' + dstY + '"]');
+                var $srcSlot = $('.chessman-slot[data-px="' + srcX + '"][data-py="' + srcY + '"]');
+                var $dstSlot = $('.chessman-slot[data-px="' + dstX + '"][data-py="' + dstY + '"]');
                 var $chessman = $srcSlot.find('.chessman');
                 if (!$chessman.length) {
                     uiStatus.moving = false;
@@ -55,17 +78,32 @@
                 $chessman.css('z-index', '1');
                 $chessman.animate(
                     {top: '+=' + deltaTop, left: '+=' + deltaLeft},
-                    1000,
+                    500,
                     'swing',
                     function() {
-                        $dstSlot.find('.chessman-slot').replaceWith($chessman.removeAttr("style"));
-                        $srcSlot.html($('<div>').addClass('chessman-slot center-item'));
+                        $dstSlot.find('.chessman-placeholder').replaceWith($chessman.removeAttr("style"));
+                        $srcSlot.html($('<div>').addClass('chessman-placeholder center-item'));
                             uiStatus.moving = false;
+                        if (callback) {
+                            callback();
+                        }
                     }
                 );
                 return true;
             }
 
+            /**
+             * Send out a message to server to play one move. If the move is
+             * valid, server will notify the other user and a chess-move
+             * animation will play on this user's side.
+             */
+            function playOneStep(srcX, srcY, dstX, dstY) {
+                sendMoveMsg(srcX, srcY, dstX, dstY, function() {
+                    moveAnimation(srcX, srcY, dstX, dstY);
+                });
+            }
+
+            /* functions that receive messagesw */
             function listenMatchMessage() {
                 var matchMessageSource=new EventSource("{{ url_for('match.receive_match_message') }}");
                 matchMessageSource.onerror = function(event) {
@@ -81,17 +119,61 @@
                     var origin = event.origin;
                     var lastEventId = event.lastEventId;
                     var message = JSON.parse(event.data);
-                    if (message.msg_type == 'msg_type_chessmove') {
-                        var src = message.msg_data.src;
-                        var dst = message.msg_data.dst;
-                        moveAnimation(src[0], src[1], dst[0], dst[1]);
-                        uiStatus.focus = null;
-                        uiStatus.myturn = true;
+                    var handler = msgHandlers[message.msg_type]
+                    if (handler !== undefined) {
+                        handler(message.msg_data);
                     }
                 };
             };
             listenMatchMessage();
 
+            var msgHandlers = {
+                'msg_type_chessmove': function(msgData) {
+                    var src = msgData.src;
+                    var dst = msgData.dst;
+                    moveAnimation(src[0], src[1], dst[0], dst[1]);
+                    uiStatus.focus = null;
+                    uiStatus.myturn = true;
+                },
+                'msg_type_undoReq': function(msgData) {
+                    bootbox.confirm("The other play requests an undo.", replyUndoRequest)
+                },
+                'msg_type_replyUndoReq': function(msgData) {
+                    if (msgData.approved) {
+                        undoAnimation(msgData.step);
+                        uiStatus.myturn = msgData.step.undone_color == $('#match-data').data('my-color');
+                    } else {
+                        console.log('The other play denied your undo request.')
+                    }
+                }
+            }
+
+            function undoAnimation(step) {
+                var timerId = setInterval(function() {
+                    if (!uiStatus.requestingMove && !uiStatus.moving) {
+                        clearInterval(timerId);
+                        var from_posi = step['from_posi'];
+                        var to_posi = step['to_posi'];
+                        moveAnimation(to_posi.x, to_posi.y, from_posi.x, from_posi.y, function() {
+                            if (step.kill_chess_id !== null) {
+                                var $revived = $('.chessman').first().clone();
+                                var revivedColor = step['killed_color'];
+                                var revivedChar = step['killed_char'];
+                                $revived.attr('data-color', revivedColor);
+                                $revived.data('color', revivedColor);
+                                $revived.find('.chessman-char').text(revivedChar);
+                                $revived.fitText(0.1);
+                                $revived.hide();
+                                var $revivedSlot = $('.chessman-slot[data-px="' + to_posi.x + '"][data-py="' + to_posi.y + '"]');
+                                $revivedSlot.find('.chessman-placeholder').replaceWith($revived);
+                                $revived.fadeIn();
+                            }
+                        });
+                    }
+                });
+            }
+
+            /* functions that send out messages */
             function sendMessage(msgType, msgData, success, error, complete) {
                 var $msgForm = $('#match-message-form');
                 $msgForm.find('#msg_type').val(msgType);
@@ -121,41 +203,47 @@
                 });
             };
 
-            function playOneStep(srcX, srcY, dstX, dstY) {
-                sendMoveMsg(srcX, srcY, dstX, dstY, function() {
-                    moveAnimation(srcX, srcY, dstX, dstY);
+            function replyUndoRequest(approved) {
+                var msgType = "msg_type_replyUndoReq";
+                var msgData = JSON.stringify({'approved': approved});
+                sendMessage(msgType, msgData, function(data) {
+                    if (data.approved) {
+                        undoAnimation(data.step);
+                        uiStatus.myturn = data.step.undone_color == $('#match-data').data('my-color');
+                    }
                 });
             }
 
-            $('#chessboard .chessmen-slots').on('click', '.chessman-slot', function() {
-                if (uiStatus.requestingMove || uiStatus.moving || !uiStatus.myturn || !uiStatus.anotherPlayerReady) {
-                    return false;
-                }
-                var $slot = $(this);
-                var $chessmanGrid = $slot.parent();
-                var targetXY = [$chessmanGrid.data('px'), $chessmanGrid.data('py')];
-                var canPlayOneStep = false;
-                if ($slot.hasClass('chessman')) {
-                    var $chessman = $slot;
-                    var $matchData = $('#match-data');
-                    if ($matchData.data('my-color') == $chessman.data('color')) {                        
-                        uiStatus.focus = targetXY;
-                    } else {
-                        if (uiStatus.focus) {
-                            canPlayOneStep = true;
+            $('.undo').on('click', function(evt) {
+                if (uiStatus.anotherPlayerReady && !uiStatus.myturn && !uiStatus.moving && !uiStatus.requestingMove) {
+                    var msgType = "msg_type_undoReq";
+                    var msgData = 'dummy';
+                    sendMessage(msgType, msgData, function(data) {
+                        if (data.result) {
+                            console.log("requested");
+                        } else {
+                            console.log("can't request undo.");
                         }
-                    }
-                } else {
-                    if (uiStatus.focus) {
-                        canPlayOneStep = true;
-                    }
-                }
-                if (canPlayOneStep) {
-                    playOneStep(uiStatus.focus[0], uiStatus.focus[1], targetXY[0], targetXY[1]);
-                    uiStatus.focus = null;
-                    uiStatus.myturn = false;
+                    });
                 }
             });
+
+            setInterval(function() {
+                var msgType = "msg_type_heartbeat";
+                var msgData = "OK";
+                sendMessage(msgType, msgData,
+                    function(data) {
+                        console.log(data);
+                        if (data.another) {
+                            uiStatus.anotherPlayerReady = true;
+                        }
+                    },
+                    function() {
+                        console.log('you are off line.');
+                    }
+                );
+            }, 2000);
+
         // })();
     </script>
 {% endblock %}
@@ -166,7 +254,10 @@
 {% block header %}
     <p>Participants: {{ match.player_uids }}</p>
     <p>Match ID: {{ match.match_id }}</p>
-    <p>My color: {{ match.player_color }}</p>
+    <p>My color: {{ match.player_color.value }}</p>
+    {% if match.join_token %}
+        <p>Join token: {{ match.join_token }}</p>
+    {% endif %}
 {% endblock %}
 
 {% block chessboard %}
@@ -185,15 +276,15 @@
         {% set chessboard = match.chessboard %}
         {% for row in range(9, -1, -1) %}
             {% for col in range(0, 9) %}
-                <div class="chessman-grid center-item" data-px="{{ col }}" data-py="{{ row }}">
+                <div class="chessman-slot center-item" data-px="{{ col }}" data-py="{{ row }}">
                     {% set chessman = chessboard.get_chessman((col, row)) %}
                     {% if chessman %}
                         {% set position = chessman.position %}
-                        <div class="chessman-slot chessman center-item" data-color={{ chessman.color.value }}>
+                        <div class="chessman-placeholder chessman center-item" data-color="{{ chessman.color.value }}">
                             <div class="chessman-char center-item">{{ chessman.char }}</div>
                         </div>
                     {% else %}
-                        <div class="chessman-slot center-item">
+                        <div class="chessman-placeholder center-item">
                         </div>
                     {% endif %}
                 </div>
