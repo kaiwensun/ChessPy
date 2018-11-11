@@ -1,10 +1,13 @@
 {% extends "layout/chessboard_layout.html" %}
 
 {% block js %}
+    <script src="{{ utils.static_url_for('lib/fittext/jquery.fittext.js') }}"></script>
     <script>
         // (function() {
             "use strict";
 
+
+            $(".chessman-char").fitText(0.1);
 
             var uiStatus = {
                 focus: null,
