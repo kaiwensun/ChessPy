@@ -98,7 +98,8 @@ class MatchDB(object):
     @utils.not_on_production
     def dump_table(table):
         keys = redis_client.keys('{}*'.format(table))
-        return MatchDB._repr2obj(redis_client.mget(keys))
+        values = redis_client.mget(keys) if keys else []
+        return MatchDB._repr2obj([])
 
     @staticmethod
     def lock(table, entry_id, blocking_timeout=0):
