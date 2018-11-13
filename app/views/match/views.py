@@ -60,6 +60,8 @@ def receive_match_message():
     def yield_message():
         while True:
             rval = handle_s2c()
+            if rval is None:
+                break
             if rval.get('msg_type') == MSG_TYPE_NOP:
                 yield ': nop\n\n'
                 time.sleep(0.5)

@@ -78,15 +78,9 @@ class Match(object):
         return match
 
     def _channel_to(self, player_uid):
-        if not all(self.player_uids):
+        if player_uid not in self.player_uids:
             return None
-        if self.player_uids[1] == player_uid:
-            from_uid, to_uid = self.player_uids
-        elif self.player_uids[0] == player_uid:
-            to_uid, from_uid = self.player_uids
-        else:
-            return None
-        return '{}-{}'.format(from_uid, to_uid)
+        return str(player_uid)
 
     def send_message_from(self, my_uid, msg_type, msg_data):
         for other_uid in self.player_uids:

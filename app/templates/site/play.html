@@ -108,11 +108,15 @@
             function listenMatchMessage() {
                 var matchMessageSource=new EventSource("{{ url_for('match.receive_match_message') }}");
                 matchMessageSource.onerror = function(event) {
-                    console.log("can't listen to message");
-                    console.log(event);
-                    if (matchMessageSource.readyState == EventSource.CLOSED) {
-                        console.log('restart listening');
-                        listenMatchMessage();
+                    if (uiStatus.matchEnd) {
+                        matchMessageSource.close();
+                    } else {
+                        console.log("can't listen to message");
+                        console.log(event);
+                        if (matchMessageSource.readyState == EventSource.CLOSED) {
+                            console.log('restart listening');
+                            listenMatchMessage();
+                        }
                     }
                 };
                 matchMessageSource.onmessage = function(event) {

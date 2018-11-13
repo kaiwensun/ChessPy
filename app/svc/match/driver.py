@@ -131,7 +131,7 @@ def leave_match(player_uid):
             MatchDB.set(_ALL_MATCHES, match.match_id, match.to_dict())
             return
         # the last one leaving the match should clean up the mess
-        match = MatchDB.takeaway(_ALL_MATCHES, match_id)
+        match = Match.from_dict(MatchDB.takeaway(_ALL_MATCHES, match_id))
         if match.join_token:
             MatchDB.delete(_PRIVATE_PENDING_MATCH_IDS, match.join_token)
         else:
