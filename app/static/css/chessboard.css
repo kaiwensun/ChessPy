@@ -41,10 +41,24 @@
     right: 0;
 }
 #chessboard-container .chessman-slot {
-    font-family: "ShaTiXingShu", "WenQuanYi Micro Hei";
     float: left;
     width: 11.1%;
     height: 10%;
+}
+#chessboard-container .chessman-slot .chessman-char {
+    font-family: "ShaTiXingShu", "WenQuanYi Micro Hei";
+}
+#chessboard-container .chessman-slot .chessman-pic {
+    font-family: ChessPiece, Militaricons;
+    font-size: 14em;
+    display: none;
+}
+#chessboard-container.use-pic .chessman-pic {
+    display: flex;
+    align-items: self-start;
+}
+#chessboard-container.use-pic .chessman-char {
+    display: none;
 }
 .chessman-slot .chessman-placeholder {
     position: relative;
@@ -76,7 +90,7 @@
 .chessman[data-color="black"] {
     color: #333333;
 }
-.chessman .chessman-char {
+.chessman .chessman-literal {
     width: 100%;
     height: 100%;
     font-size: 15em;

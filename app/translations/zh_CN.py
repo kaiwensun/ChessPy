@@ -33,5 +33,6 @@ DICT = {
     "Agree": "同意",
     "Disagree": "拒绝",
     "Red wins!": "红方胜！",
-    "Black wins!": "黑方胜！"
+    "Black wins!": "黑方胜！",
+    "Change style": "更换风格"
 }

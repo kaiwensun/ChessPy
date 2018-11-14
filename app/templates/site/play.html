@@ -8,6 +8,7 @@
 
 
             $(".chessman-char").fitText(0.1);
+            $(".chessman-pic").fitText(0.12);
 
             var uiStatus = {
                 focus: null,
@@ -183,10 +184,15 @@
                                 var $revived = $('.chessman').first().clone();
                                 var revivedColor = step['killed_color'];
                                 var revivedChar = step['killed_char'];
+                                var revivedPic = step['killed_pic'];
                                 $revived.attr('data-color', revivedColor);
                                 $revived.data('color', revivedColor);
-                                $revived.find('.chessman-char').text(revivedChar);
-                                $revived.fitText(0.1);
+                                var $chessmanChar = $revived.find('.chessman-char');
+                                var fontSize = $chessmanChar.css('font-size');
+                                $chessmanChar.text(revivedChar).fitText(0.1).css('font-size', fontSize);
+                                var $chessmanPic = $revived.find('.chessman-pic');
+                                fontSize = $chessmanPic.css('font-size');
+                                $chessmanPic.text(revivedPic).fitText(0.12).css('font-size', fontSize);
                                 $revived.hide();
                                 var $revivedSlot = $('.chessman-slot[data-px="' + to_posi.x + '"][data-py="' + to_posi.y + '"]');
                                 $revivedSlot.find('.chessman-placeholder').replaceWith($revived);
@@ -255,6 +261,10 @@
                 }
             });
 
+            $('.switch-text').on('click', function() {
+                $('#chessboard-container').toggleClass('use-pic');
+            });
+
             var heartbeatTimerId = setInterval(function() {
                 if (uiStatus.matchEnd) {
                     clearInterval(heartbeatTimerId);
@@ -313,7 +323,8 @@
                     {% if chessman %}
                         {% set position = chessman.position %}
                         <div class="chessman-placeholder chessman center-item" data-color="{{ chessman.color.value }}">
-                            <div class="chessman-char center-item">{{ chessman.char }}</div>
+                            <div class="chessman-char chessman-literal center-item">{{ chessman.char }}</div>
+                            <div class="chessman-pic chessman-literal center-item">{{ chessman.pic }}</div>
                         </div>
                     {% else %}
                         <div class="chessman-placeholder center-item">
@@ -338,4 +349,7 @@
     <a role="button" class="btn btn-primary go-back" href="{{ url_for('site.index') }}">
         {{ utils.gettext('Go back')}}
     </a>
+    <button role="button" class="btn btn-primary switch-text">
+        {{ utils.gettext('Change style')}}
+    </button>
 {% endblock %}
