@@ -98,6 +98,9 @@ def handle_reply_undo_request(message):
             step['killed_char'] = Chessman.role2char(
                 Chessman.id2role(kill_chess_id),
                 color=killed_color)
+            step['killed_pic'] = Chessman.role2pic(
+                Chessman.id2role(kill_chess_id),
+                color=killed_color)
         msg_data = {'approved': True,
                     'step': step}
         match.send_message_from(

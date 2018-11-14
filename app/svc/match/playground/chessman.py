@@ -26,7 +26,6 @@ class Chessman(object):
         self._role = Chessman.id2role(chess_id)
         self._init_global_position = Chessman._calc_init_position(chess_id)
         self._current_position = Chessman._calc_init_position(chess_id)
-        self._char = Chessman.role2char(self.role, self.color)
 
     def __str__(self):
         return self.char
@@ -65,7 +64,11 @@ class Chessman(object):
 
     @property
     def char(self):
-        return self._char
+        return Chessman.role2char(self.role, self.color)
+
+    @property
+    def pic(self):
+        return Chessman.role2pic(self.role, self.color)
 
     def can_exist_at(self, position):
         if not isinstance(position, GlobalPosition):
@@ -227,6 +230,30 @@ class Chessman(object):
                 ChessRole.PAO: "砲",
                 ChessRole.BING: "卒",
                 ChessRole.SHUAI: "将"
+            }
+        }
+        return charset[color][role]
+
+    @staticmethod
+    def role2pic(role, color=ChessColor.RED):
+        charset = {
+            ChessColor.RED: {
+                ChessRole.SHI: "q",
+                ChessRole.XIANG: "b",
+                ChessRole.MA: "h",
+                ChessRole.JU: "r",
+                ChessRole.PAO: "f",
+                ChessRole.BING: "p",
+                ChessRole.SHUAI: "k"
+            },
+            ChessColor.BLACK: {
+                ChessRole.SHI: "w",
+                ChessRole.XIANG: "n",
+                ChessRole.MA: "j",
+                ChessRole.JU: "t",
+                ChessRole.PAO: "|",
+                ChessRole.BING: "o",
+                ChessRole.SHUAI: "l"
             }
         }
         return charset[color][role]
