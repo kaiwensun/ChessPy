@@ -316,8 +316,15 @@
     </div>
     <div class="chessmen-slots">
         {% set chessboard = match.chessboard %}
-        {% for row in range(9, -1, -1) %}
-            {% for col in range(0, 9) %}
+        {% if match.player_color.value == 'black' %}
+            {% set row_range = range(0, 10) %}
+            {% set col_range = range(8, -1, -1) %}
+        {% else %}
+            {% set row_range = range(9, -1, -1) %}
+            {% set col_range =  range(0, 9) %}
+        {% endif %}
+        {% for row in row_range %}
+            {% for col in col_range %}
                 <div class="chessman-slot center-item" data-px="{{ col }}" data-py="{{ row }}">
                     {% set chessman = chessboard.get_chessman((col, row)) %}
                     {% if chessman %}
