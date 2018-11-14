@@ -49,7 +49,7 @@
     font-family: "ShaTiXingShu", "WenQuanYi Micro Hei";
 }
 #chessboard-container .chessman-slot .chessman-pic {
-    font-family: ChessPiece, Militaricons;
+    font-family: ChessPiece, Bomb;
     font-size: 14em;
     display: none;
 }

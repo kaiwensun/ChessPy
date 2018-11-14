@@ -242,7 +242,7 @@ class Chessman(object):
                 ChessRole.XIANG: "b",
                 ChessRole.MA: "h",
                 ChessRole.JU: "r",
-                ChessRole.PAO: "A",
+                ChessRole.PAO: "f",
                 ChessRole.BING: "p",
                 ChessRole.SHUAI: "k"
             },
@@ -251,7 +251,7 @@ class Chessman(object):
                 ChessRole.XIANG: "n",
                 ChessRole.MA: "j",
                 ChessRole.JU: "t",
-                ChessRole.PAO: "B",
+                ChessRole.PAO: "|",
                 ChessRole.BING: "o",
                 ChessRole.SHUAI: "l"
             }
