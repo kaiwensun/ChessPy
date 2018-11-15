@@ -18,6 +18,7 @@ def handle_s2c():
     msg_handler = handlers.get(message['msg_type'])
     if msg_handler:
         msg_handler(message)
+    print("handle_s2c to {}: {}".format(current_user.user_id, message))
     return message
 
 

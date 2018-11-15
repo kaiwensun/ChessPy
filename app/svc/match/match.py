@@ -5,6 +5,7 @@ from flask_login import current_user
 
 from app.flask_ext import redis_client
 from app.svc.match.playground.chess_color import ChessColor
+from app.svc.match.playground.chess_role import ChessRole
 from app.svc.match.playground.chessboard import Chessboard
 from app.svc.match.match_db import MatchDB
 from app.svc.match import msg_meta
@@ -24,6 +25,7 @@ class Match(object):
         self._player_colors = [
             colors[player1_color], colors[1 - player1_color]]
         self._join_token = join_token
+        self.is_over = False
 
     def set_player2(self, player2_uid):
         self._player_uids[1] = player2_uid
@@ -63,7 +65,8 @@ class Match(object):
             'player_uids': self.player_uids,
             'player_colors': [color.value for color in self.player_colors],
             'match_id': self.match_id,
-            'join_token': self.join_token
+            'join_token': self.join_token,
+            'is_over': self.is_over
         }
 
     @staticmethod
@@ -75,6 +78,11 @@ class Match(object):
         match._player_colors = [ChessColor(color)
                                 for color in data['player_colors']]
         match._match_id = data['match_id']
+        print('kaiwen' * 5)
+        print(data)
+        print(data['is_over'])
+        print(type(data['is_over']))
+        match.is_over = data['is_over']
         return match
 
     def _channel_to(self, player_uid):
@@ -106,6 +114,9 @@ class Match(object):
         if player_color != chessboard.active_player_color:
             raise exceptions.NotYourTurn()
         target_chessman = chessboard.move(src[0], src[1], dst[0], dst[1])
+        if target_chessman and target_chessman.role == ChessRole.SHUAI:
+            self.is_over = True
+            self.save()
         self.chessboard = chessboard
         return target_chessman
 
@@ -132,3 +143,6 @@ class Match(object):
     @chessboard.setter
     def chessboard(self, value):
         match_driver.set_chessboard(self.chessboard_id, value)
+
+    def save(self):
+        match_driver.saveMatch(self)

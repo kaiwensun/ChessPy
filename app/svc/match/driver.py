@@ -52,7 +52,7 @@ def join_match(player_uid, join_token):
             match = Match.from_dict(MatchDB.get(_ALL_MATCHES, match_id))
             match.set_player2(player_uid)
             MatchDB.set(_USER_2_MATCH_ID, player_uid, match.match_id)
-            MatchDB.set(_ALL_MATCHES, match_id, match.to_dict())
+            match.save()
         match.send_message_from(
             player_uid,
             msg_meta.MSG_TYPE_CONTROL,
@@ -141,6 +141,10 @@ def leave_match(player_uid):
     finally:
         if join_token:
             match_room_door.release()
+
+
+def saveMatch(match):
+    MatchDB.set(_ALL_MATCHES, match.match_id, match.to_dict())
 
 
 def get_match(player_uid):

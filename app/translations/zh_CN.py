@@ -34,5 +34,8 @@ DICT = {
     "Disagree": "拒绝",
     "Red wins!": "红方胜！",
     "Black wins!": "黑方胜！",
-    "Change style": "更换风格"
+    "Change style": "更换风格",
+    "The other play requests an draw.": "对方请求和棋。",
+    "Draw by aggrement!": "和棋！",
+    "Game over.": "游戏结束。"
 }
