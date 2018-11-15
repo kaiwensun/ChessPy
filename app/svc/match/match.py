@@ -78,10 +78,6 @@ class Match(object):
         match._player_colors = [ChessColor(color)
                                 for color in data['player_colors']]
         match._match_id = data['match_id']
-        print('kaiwen' * 5)
-        print(data)
-        print(data['is_over'])
-        print(type(data['is_over']))
         match.is_over = data['is_over']
         return match
 
