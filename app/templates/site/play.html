@@ -141,7 +141,7 @@
                     uiStatus.focus = null;
                     uiStatus.myturn = true;
                 },
-                'msg_type_undoReq': function(msgData) {
+                'msg_type_undoReq': function() {
                     bootbox.confirm({
                         message: "{{ utils.gettext('The other play requests an undo.') }}",
                         buttons: {
@@ -159,15 +159,40 @@
                         undoAnimation(msgData.step);
                         uiStatus.myturn = msgData.step.undone_color == $('#match-data').data('my-color');
                     } else {
-                        console.log('The other play denied your undo request.')
+                        console.log('The other play denied your undo request.');
+                    }
+                },
+                'msg_type_drawReq': function() {
+                    bootbox.confirm({
+                        message: "{{ utils.gettext('The other play requests an draw.') }}",
+                        buttons: {
+                            confirm: {
+                                label: "{{ utils.gettext('Agree') }}"
+                            },
+                            cancel: {
+                                label: "{{ utils.gettext('Disagree') }}"
+                            }
+                        },
+                        callback: replyDrawRequest});
+                },
+                'msg_type_replyDrawReq': function(msgData) {
+                    if (msgData.approved) {
+                        uiStatus.matchEnd = true;
+                    } else {
+                        console.log('The other play denied your draw request.');
                     }
                 },
                 'msg_type_matchEnd': function(data) {
                     uiStatus.matchEnd = true;
-                    if (data.winner == 'red') {
-                        var text = "{{ utils.gettext('Red wins!') }}";
-                    } else {
-                        var text = "{{ utils.gettext('Black wins!') }}";
+                    var text = "{{ utils.gettext('Game over.') }}";
+                    if (data.reason == 'checkmate') {
+                        if (data.winner == 'red') {
+                            text = "{{ utils.gettext('Red wins!') }}";
+                        } else {
+                            text = "{{ utils.gettext('Black wins!') }}";
+                        }
+                    } else if (data.reason == 'draw by agreement') {
+                            text = "{{ utils.gettext('Draw by aggrement!') }}";
                     }
                     bootbox.alert(text);
                 }
@@ -247,9 +272,18 @@
                 });
             }
 
-            $('.undo').on('click', function(evt) {
+            function replyDrawRequest(approved) {
+                if (uiStatus.matchEnd) {
+                    return;
+                }
+                var msgType = "msg_type_replyDrawReq";
+                var msgData = JSON.stringify({'approved': approved});
+                sendMessage(msgType, msgData);
+            }
+
+            $('.undo').on('click', function() {
                 if (uiStatus.anotherPlayerReady && !uiStatus.myturn && !uiStatus.moving && !uiStatus.requestingMove && !uiStatus.matchEnd) {
-                    var msgType = "msg_type_undoReq";
+                    var msgType = 'msg_type_undoReq';
                     var msgData = 'dummy';
                     sendMessage(msgType, msgData, function(data) {
                         if (data.result) {
@@ -259,6 +293,18 @@
                         }
                     });
                 }
+            });
+
+            $('.draw').on('click', function() {
+                var msgType = 'msg_type_drawReq';
+                var msgData = 'dummy';
+                sendMessage(msgType, msgData, function(data) {
+                    if (data.result) {
+                        console.log('requested');
+                    } else {
+                        console.log("can't request draw");
+                    }
+                });
             });
 
             $('.switch-text').on('click', function() {
@@ -311,7 +357,7 @@
         id="match-data"
         data-my-color="{{ match.player_color.value }}"
         data-inturn-onload="{{ match.chessboard.active_player_color.value }}"
-        data-game-is-over="{{ 'true' if match.chessboard.game_is_over() else 'false' }}"
+        data-game-is-over="{{ 'true' if match.is_over else 'false' }}"
         >
     </div>
     <div class="chessmen-slots">

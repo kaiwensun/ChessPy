@@ -16,6 +16,7 @@ from . import forms
 from app.svc.match.msg_handler_c2s import handle_c2s
 from app.svc.match.msg_handler_s2c import handle_s2c
 from app.svc.match.msg_meta import MSG_TYPE_NOP
+from app.svc.match import exceptions
 
 from app.svc.membership import driver as membership_driver
 from app.svc.match import driver as match_driver
@@ -49,7 +50,10 @@ def join_public_match():
 
 @bp.route('view_match')
 def view_match():
-    match = match_driver.get_match(current_user.user_id)
+    try:
+        match = match_driver.get_match(current_user.user_id)
+    except exceptions.NoMatchFoundException:
+        return redirect(url_for('site.index'))
     match_msg_form = forms.MessageForm()
     return render_template('site/play.html', match=match,
                            match_msg_form=match_msg_form)

@@ -110,7 +110,7 @@ class Chessboard(object):
             self._active_player_color = ChessColor.BLACK
 
     def move(self, src_x, src_y, dst_x, dst_y):
-        if self.game_is_over():
+        if self._game_is_over():
             raise ValueError('Game is over')
         src = GlobalPosition(src_x, src_y)
         chessman = self.get_chessman(src)
@@ -164,7 +164,7 @@ class Chessboard(object):
             return False
         return True
 
-    def game_is_over(self):
+    def _game_is_over(self):
         # 15 and 31 are chess_id of the two SHUAI (kings)
         return not bool(self._chessmen[15] and self._chessmen[31])
 

@@ -14,7 +14,9 @@ def handle_c2s(message):
         MSG_TYPE_CHESSMOVE: handle_chessmove,
         MSG_TYPE_HEARTBEAT: handle_heartbeat,
         MSG_TYPE_UNDOREQ: handle_undo_request,
-        MSG_TYPE_REPLYUNDOREQ: handle_reply_undo_request
+        MSG_TYPE_REPLYUNDOREQ: handle_reply_undo_request,
+        MSG_TYPE_DRAWREQ: handle_draw_request,
+        MSG_TYPE_REPLYDRAWREQ: handle_reply_draw_request
     }
     handler = handlers.get(message['msg_type'])
     return handler(message)
@@ -24,12 +26,16 @@ def handle_chessmove(message):
     msg_type = message['msg_type']
     msg_data = json.loads(message['msg_data'])
     match = match_driver.get_match(current_user.user_id)
-    killed_chessman = match.move(msg_data['src'], msg_data['dst'])
-    match.send_message_from(current_user.user_id, msg_type, msg_data)
+    if match.is_over:
+        killed_chessman = None
+    else:
+        killed_chessman = match.move(msg_data['src'], msg_data['dst'])
+        match.send_message_from(current_user.user_id, msg_type, msg_data)
     rval = {'chessboard': str(match.chessboard)}
     if killed_chessman and killed_chessman.role == ChessRole.SHUAI:
         msg_type = MSG_TYPE_MATCHEND
-        msg_data = {'winner': match.player_color.value}
+        msg_data = {'winner': match.player_color.value,
+                    'reason': 'checkmate'}
         for player_uid in match.player_uids:
             match.send_message_from(player_uid, msg_type, msg_data)
     return rval
@@ -113,3 +119,42 @@ def handle_reply_undo_request(message):
             'undoreq',
             "{}-{}".format(match.another_player_uid, match.match_id))
         lock.release()
+
+
+def handle_draw_request(message):
+    match = match_driver.get_match(current_user.user_id)
+    if match.is_over:
+        return {'result': False}
+    # If your draw request within the past 60s was not approved, by the ohter
+    # player, then you can't request again.
+    can_request = MatchDB.set(
+        'drawreq',
+        "{}-{}".format(current_user.user_id, match.match_id),
+        'requesting',
+        nx=True,
+        ex=60)
+    if not can_request:
+        return {'result': False}
+    msg_type = message['msg_type']
+    msg_data = message['msg_data']
+    match.send_message_from(current_user.user_id, msg_type, msg_data)
+    return {'result': True}
+
+
+def handle_reply_draw_request(message):
+    msg_data = json.loads(message['msg_data'])
+    match = match_driver.get_match(current_user.user_id)
+    if not msg_data or not msg_data.get('approved'):
+        msg_data = {'approved': False}
+    if msg_data['approved']:
+        msg_type = MSG_TYPE_MATCHEND
+        msg_data = {'winner': None,
+                    'reason': 'draw by agreement'}
+        for player_uid in match.player_uids:
+            match.send_message_from(player_uid, msg_type, msg_data)
+    else:
+        match.send_message_from(
+            current_user.user_id,
+            MSG_TYPE_REPLYDRAWREQ,
+            msg_data)
+    return msg_data
