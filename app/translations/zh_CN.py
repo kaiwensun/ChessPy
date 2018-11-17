@@ -7,7 +7,7 @@ DICT = {
     "Private game": "私人对弈",
     "Undo": "悔棋",
     "Draw": "求和",
-    "Surrender": "认输",
+    "Resign": "认输",
     "Author: Kaiwen Sun": "作者：孙楷文",
     "User name": "用户名",
     "user name is required": "请输入用户名",
@@ -37,5 +37,6 @@ DICT = {
     "Change style": "更换风格",
     "The other play requests an draw.": "对方请求和棋。",
     "Draw by aggrement!": "和棋！",
-    "Game over.": "游戏结束。"
+    "Game over.": "游戏结束。",
+    "The other play resigned.": "对方认输。"
 }

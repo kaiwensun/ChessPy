@@ -7,6 +7,7 @@ from app.svc.match import driver as match_driver
 from app.svc.match.match_db import MatchDB
 from app.svc.match.playground.chessman import Chessman
 from app.svc.match.playground.chess_role import ChessRole
+from app.svc.match.playground.chess_color import ChessColor
 
 
 def handle_c2s(message):
@@ -16,7 +17,8 @@ def handle_c2s(message):
         MSG_TYPE_UNDOREQ: handle_undo_request,
         MSG_TYPE_REPLYUNDOREQ: handle_reply_undo_request,
         MSG_TYPE_DRAWREQ: handle_draw_request,
-        MSG_TYPE_REPLYDRAWREQ: handle_reply_draw_request
+        MSG_TYPE_REPLYDRAWREQ: handle_reply_draw_request,
+        MSG_TYPE_RESIGNREQ: handle_resign_request
     }
     handler = handlers.get(message['msg_type'])
     return handler(message)
@@ -158,3 +160,17 @@ def handle_reply_draw_request(message):
             MSG_TYPE_REPLYDRAWREQ,
             msg_data)
     return msg_data
+
+
+def handle_resign_request(_):
+    match = match_driver.get_match(current_user.user_id)
+    if match.is_over:
+        return {'result': False}
+    match.is_over = True
+    match.save()
+    msg_type = MSG_TYPE_MATCHEND
+    msg_data = {'winner': [color.value for color in ChessColor if color != match.player_color][0],
+                'reason': 'resign'}
+    for player_uid in match.player_uids:
+        match.send_message_from(player_uid, msg_type, msg_data)
+    return {'result': True}

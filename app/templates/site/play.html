@@ -193,6 +193,10 @@
                         }
                     } else if (data.reason == 'draw by agreement') {
                             text = "{{ utils.gettext('Draw by aggrement!') }}";
+                    } else if (data.reason == 'resign') {
+                        if (data.winner == $('#match-data').data('my-color')) {
+                            text = "{{ utils.gettext('The other play resigned.') }}";
+                        }
                     }
                     bootbox.alert(text);
                 }
@@ -287,7 +291,7 @@
                     var msgData = 'dummy';
                     sendMessage(msgType, msgData, function(data) {
                         if (data.result) {
-                            console.log("requested");
+                            console.log("undo requested");
                         } else {
                             console.log("can't request undo.");
                         }
@@ -296,16 +300,32 @@
             });
 
             $('.draw').on('click', function() {
-                var msgType = 'msg_type_drawReq';
-                var msgData = 'dummy';
-                sendMessage(msgType, msgData, function(data) {
-                    if (data.result) {
-                        console.log('requested');
-                    } else {
-                        console.log("can't request draw");
-                    }
-                });
+                if (uiStatus.anotherPlayerReady && !uiStatus.matchEnd) {
+                    var msgType = 'msg_type_drawReq';
+                    var msgData = 'dummy';
+                    sendMessage(msgType, msgData, function(data) {
+                        if (data.result) {
+                            console.log('draw requested');
+                        } else {
+                            console.log("can't request draw");
+                        }
+                    });
+                }
             });
+
+            $('.resign').on('click', function() {
+                if (uiStatus.anotherPlayerReady && !uiStatus.matchEnd) {
+                    var msgType = 'msg_type_resignReq';
+                    var msgData = 'dummy';
+                    sendMessage(msgType, msgData, function(data) {
+                        if (data.result) {
+                            console.log('resign requested');
+                        } else {
+                            console.log("can't request resign");
+                        }
+                    });
+                }
+            })
 
             $('.switch-text').on('click', function() {
                 $('#chessboard-container').toggleClass('use-pic');
@@ -396,8 +416,8 @@
     <button type="button" class="btn btn-primary draw">
         {{ utils.gettext('Draw') }}
     </button>
-    <button type="button" class="btn btn-primary surrender">
-        {{ utils.gettext('Surrender') }}
+    <button type="button" class="btn btn-primary resign">
+        {{ utils.gettext('Resign') }}
     </button>
     <a role="button" class="btn btn-primary go-back" href="{{ url_for('site.index') }}">
         {{ utils.gettext('Go back')}}
