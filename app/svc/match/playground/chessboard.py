@@ -156,7 +156,7 @@ class Chessboard(object):
         return step
 
     def can_undo(self):
-        if len(self._move_history) == 0 or self.game_is_over():
+        if len(self._move_history) == 0 or self._game_is_over():
             return False
         move_step = self._move_history[-1]
         chess_id = move_step['chess_id']

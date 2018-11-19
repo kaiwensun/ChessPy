@@ -35,8 +35,17 @@ DICT = {
     "Red wins!": "红方胜！",
     "Black wins!": "黑方胜！",
     "Change style": "更换风格",
+    "Draw requested.": "已请求和棋。",
+    "Don\'t request draw too often.": "不能频繁请求和棋。",
     "The other play requests an draw.": "对方请求和棋。",
+    "The other play denied your draw request.": "对方拒绝和棋。",
     "Draw by aggrement!": "和棋！",
+    "Undo requested.": "已请求悔棋。",
+    "Can\'t request undo now.": "现在不能悔棋。",
+    "The other play denied your undo request.": "对方拒绝悔棋。",
+    "The other play agreed with your undo.": "对方同意悔棋请求。",
     "Game over.": "游戏结束。",
-    "The other play resigned.": "对方认输。"
+    "The other play resigned.": "对方认输。",
+    "Oops! Something went wrong!": "哎呀！出错啦！",
+    "You are offline.": "网络中断"
 }

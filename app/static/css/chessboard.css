@@ -24,8 +24,8 @@
 #chessboard {
     background: url("/static/images/wood-1.jpg");
     background-repeat: repeat;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2),
+                0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 #chessboard, .chessmen-slots{
     width: 100%;
@@ -110,9 +110,13 @@
     justify-content: space-around;
     align-content: space-around;
 }
-.below-board-buttons .btn {
-    margin-top: 2vh;
-    margin-bottom: 2vh;
+.below-board-buttons > .btn,
+.below-board-buttons > form {
+    margin: 2vh 5px 0 5px;
+    flex-grow: 1;
+}
+.below-board-buttons > form .btn {
+    width: 100%;
 }
 .center-item {
     display: flex;

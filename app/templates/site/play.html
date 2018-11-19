@@ -3,9 +3,8 @@
 {% block js %}
     <script src="{{ utils.static_url_for('lib/fittext/jquery.fittext.js') }}"></script>
     <script>
-        // (function() {
+        (function() {
             "use strict";
-
 
             $(".chessman-char").fitText(0.1);
             $(".chessman-pic").fitText(0.12);
@@ -156,10 +155,11 @@
                 },
                 'msg_type_replyUndoReq': function(msgData) {
                     if (msgData.approved) {
+                        window.chessPy.alert("{{ utils.gettext('The other play agreed with your undo.') }}", 'primary');
                         undoAnimation(msgData.step);
                         uiStatus.myturn = msgData.step.undone_color == $('#match-data').data('my-color');
                     } else {
-                        console.log('The other play denied your undo request.');
+                        "{{ utils.gettext('The other play denied your undo request.') }}";
                     }
                 },
                 'msg_type_drawReq': function() {
@@ -179,7 +179,7 @@
                     if (msgData.approved) {
                         uiStatus.matchEnd = true;
                     } else {
-                        console.log('The other play denied your draw request.');
+                        window.chessPy.alert('{{ utils.gettext("The other play denied your draw request.") }}', 'primary');
                     }
                 },
                 'msg_type_matchEnd': function(data) {
@@ -198,7 +198,10 @@
                             text = "{{ utils.gettext('The other play resigned.') }}";
                         }
                     }
-                    bootbox.alert(text);
+                    window.chessPy.alert(text, 'primary', 0);
+                },
+                'msg_type_chat': function(data) {
+                    window.chessPy.alert(data, 'secondary');
                 }
             }
 
@@ -247,6 +250,11 @@
                 });
             }
 
+            function sendChatMessage(chatMsg) {
+                sendMessage('msg_type_chat', chatMsg);
+            }
+            window.chessPy.sendChatMessage = sendChatMessage;
+
             function sendMoveMsg(srcX, srcY, dstX, dstY, success, error) {
                 if (uiStatus.requestingMove || uiStatus.matchEnd) {
                     return false;
@@ -291,9 +299,9 @@
                     var msgData = 'dummy';
                     sendMessage(msgType, msgData, function(data) {
                         if (data.result) {
-                            console.log("undo requested");
+                            window.chessPy.alert('{{ utils.gettext("Undo requested.") }}', 'success');
                         } else {
-                            console.log("can't request undo.");
+                            window.chessPy.alert('{{ utils.gettext("Can\'t request undo now.") }}', 'danger');
                         }
                     });
                 }
@@ -305,9 +313,9 @@
                     var msgData = 'dummy';
                     sendMessage(msgType, msgData, function(data) {
                         if (data.result) {
-                            console.log('draw requested');
+                            window.chessPy.alert('{{ utils.gettext("Draw requested.") }}', 'success');
                         } else {
-                            console.log("can't request draw");
+                            window.chessPy.alert('{{ utils.gettext("Don\'t request draw too often.") }}', 'danger');
                         }
                     });
                 }
@@ -317,13 +325,7 @@
                 if (uiStatus.anotherPlayerReady && !uiStatus.matchEnd) {
                     var msgType = 'msg_type_resignReq';
                     var msgData = 'dummy';
-                    sendMessage(msgType, msgData, function(data) {
-                        if (data.result) {
-                            console.log('resign requested');
-                        } else {
-                            console.log("can't request resign");
-                        }
-                    });
+                    sendMessage(msgType, msgData);
                 }
             })
 
@@ -340,18 +342,23 @@
                 var msgData = "OK";
                 sendMessage(msgType, msgData,
                     function(data) {
-                        console.log(data);
                         if (data.another && !uiStatus.matchEnd) {
                             uiStatus.anotherPlayerReady = true;
+                            var $offlineAlert = $('.offline-alert');
+                            if ($offlineAlert.length) {
+                                window.chessPy.removeAlert($offlineAlert);
+                            }
                         }
                     },
                     function() {
-                        console.log('you are off line.');
+                        var $offlineAlert = $('.offline-alert');
+                        if (!$offlineAlert.length) {
+                            window.chessPy.alert("{{ utils.gettext('You are offline.') }}", 'warning', 0, 'offline-alert');
+                        }
                     }
                 );
             }, 2000);
-
-        // })();
+        })();
     </script>
 {% endblock %}
 

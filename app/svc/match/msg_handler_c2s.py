@@ -18,7 +18,8 @@ def handle_c2s(message):
         MSG_TYPE_REPLYUNDOREQ: handle_reply_undo_request,
         MSG_TYPE_DRAWREQ: handle_draw_request,
         MSG_TYPE_REPLYDRAWREQ: handle_reply_draw_request,
-        MSG_TYPE_RESIGNREQ: handle_resign_request
+        MSG_TYPE_RESIGNREQ: handle_resign_request,
+        MSG_TYPE_CHAT:handle_chat
     }
     handler = handlers.get(message['msg_type'])
     return handler(message)
@@ -174,3 +175,10 @@ def handle_resign_request(_):
     for player_uid in match.player_uids:
         match.send_message_from(player_uid, msg_type, msg_data)
     return {'result': True}
+
+
+def handle_chat(message):
+    match = match_driver.get_match(current_user.user_id)
+    msg_type = message['msg_type']
+    msg_data = message['msg_data']
+    match.send_message_from(current_user.user_id, msg_type, msg_data)
