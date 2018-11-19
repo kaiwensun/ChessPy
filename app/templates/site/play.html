@@ -359,12 +359,15 @@
 {% endblock %}
 
 {% block header %}
-    <p>Participants: {{ match.player_uids }}</p>
-    <p>Match ID: {{ match.match_id }}</p>
-    <p>My color: {{ match.player_color.value }}</p>
-    {% if match.join_token %}
-        <p>Join token: {{ match.join_token }}</p>
-    {% endif %}
+    <ul class="d-none">
+        <li>Current user: {{ current_user.get_id() }}</li>
+        <li>Participants: {{ match.player_uids }}</li>
+        <li>Match ID: {{ match.match_id }}</li>
+        <li>My color: {{ match.player_color.value }}</li>
+        {% if match.join_token %}
+            <li>Join token: {{ match.join_token }}</li>
+        {% endif %}
+    </ul>
 {% endblock %}
 
 {% block chessboard %}

@@ -22,9 +22,18 @@ body, #root {
     align-items: stretch;
 }
 #header {
-    height: 80px;
+    margin-top: 0;
+    margin-bottom: auto;
+}
+#content {
+    display: flex;
+    flex-grow: 1;
+    flex-flow: column nowrap;
+    justify-content: center;
 }
 #footer {
+    margin-top: auto;
+    margin-bottom: 0;
     height: 30px;
 }
 p {
