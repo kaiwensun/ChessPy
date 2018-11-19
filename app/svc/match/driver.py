@@ -20,7 +20,13 @@ def join_match(player_uid, join_token):
         _register_player(player_uid, bool(join_token))
     except exceptions.AlreadyInMatchException:
         match_id = MatchDB.get(_USER_2_MATCH_ID, player_uid)
-        return Match.from_dict(MatchDB.get(_ALL_MATCHES, match_id))
+        match_dict = MatchDB.get(_ALL_MATCHES, match_id)
+        if match_dict:
+            match = Match.from_dict(match_dict)
+            if match.join_token == join_token:
+                return match
+        leave_match(player_uid)
+        _register_player(player_uid, bool(join_token))
     try:
         if join_token:
             blocking_timeout = min(settings.GAME_TTL // 2, 5)
@@ -40,7 +46,7 @@ def join_match(player_uid, join_token):
                 match_id = MatchDB.takeaway(
                     _PRIVATE_PENDING_MATCH_IDS, join_token)
             elif population > 2:
-                # join_token collisioni. try another join_token
+                # join_token collision. try another join_token
                 raise exceptions.InvalidMatchState(
                     'join_token {} is already in use by at least 2 players.'
                     .format(join_token))
@@ -123,6 +129,7 @@ def leave_match(player_uid):
                     'the door {} is too crowded.'.format(join_token))
 
         match.remove_player(player_uid)
+        MatchDB.delete(_USER_2_MATCH_ID, player_uid)
         if match.active_players_cnt == 1:
             match.send_message_from(
                 player_uid,
