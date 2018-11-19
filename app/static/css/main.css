@@ -39,3 +39,14 @@ body, #root {
 p {
     margin: 0;
 }
+#messages-panel {
+    position: absolute;
+    width: 100vw;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1;
+}
+#messages-panel .alert {
+    margin: 0.5rem 1rem;
+}

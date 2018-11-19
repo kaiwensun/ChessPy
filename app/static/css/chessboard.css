@@ -110,8 +110,13 @@
     justify-content: space-around;
     align-content: space-around;
 }
-.below-board-buttons .btn {
+.below-board-buttons > .btn,
+.below-board-buttons > form {
     margin: 2vh 5px 0 5px;
+    flex-grow: 1;
+}
+.below-board-buttons > form .btn {
+    width: 100%;
 }
 .center-item {
     display: flex;
