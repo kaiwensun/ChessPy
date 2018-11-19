@@ -3,9 +3,8 @@
 {% block js %}
     <script src="{{ utils.static_url_for('lib/fittext/jquery.fittext.js') }}"></script>
     <script>
-        // (function() {
+        (function() {
             "use strict";
-
 
             $(".chessman-char").fitText(0.1);
             $(".chessman-pic").fitText(0.12);
@@ -23,7 +22,7 @@
             var killedChessmen = {};
 
             /**
-             * Listen to mouse click on chessmen. Act accordingly.
+             * Listen to mouse click on chessmen. Act accordingly. 
              */
             $('#chessboard .chessmen-slots').on('click', '.chessman-placeholder', function() {
                 if (uiStatus.requestingMove || uiStatus.moving || !uiStatus.myturn || !uiStatus.anotherPlayerReady) {
@@ -350,8 +349,7 @@
                     }
                 );
             }, 2000);
-
-        // })();
+        })();
     </script>
 {% endblock %}
 
