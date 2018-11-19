@@ -198,6 +198,9 @@
                         }
                     }
                     bootbox.alert(text);
+                },
+                'msg_type_chat': function(data) {
+                    console.log(data);
                 }
             }
 
@@ -245,6 +248,11 @@
                     complete: complete
                 });
             }
+
+            function sendChatMessage(chatMsg) {
+                sendMessage('msg_type_chat', chatMsg);
+            }
+            window.chessPy.sendChatMessage = sendChatMessage;
 
             function sendMoveMsg(srcX, srcY, dstX, dstY, success, error) {
                 if (uiStatus.requestingMove || uiStatus.matchEnd) {

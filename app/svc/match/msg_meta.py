@@ -8,7 +8,7 @@ MSG_TYPE_DRAWREQ = 'msg_type_drawReq'
 MSG_TYPE_REPLYDRAWREQ = 'msg_type_replyDrawReq'
 MSG_TYPE_RESIGNREQ = 'msg_type_resignReq'
 MSG_TYPE_MATCHEND = 'msg_type_matchEnd'
-
+MSG_TYPE_CHAT = 'msg_type_chat'
 
 # tell the other player "I am about to leave the match!"
 MSG_CONST_LEFT = 'msg_const_left'
