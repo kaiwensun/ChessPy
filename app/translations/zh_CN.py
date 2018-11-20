@@ -47,5 +47,7 @@ DICT = {
     "Game over.": "游戏结束。",
     "The other play resigned.": "对方认输。",
     "Oops! Something went wrong!": "哎呀！出错啦！",
-    "You are offline.": "网络中断"
+    "You are offline.": "网络中断",
+    "Waiting for another player...": "等待另一名玩家……",
+    "Another player is online. Game begins!": "对方已上线。游戏开始！"
 }

@@ -342,12 +342,19 @@
                 var msgData = "OK";
                 sendMessage(msgType, msgData,
                     function(data) {
-                        if (data.another && !uiStatus.matchEnd) {
+                        var $offlineAlert = $('.offline-alert');
+                        var $anotherPlayerAlert = $('.waiting-another-player-alert');
+                        if (data.another && !uiStatus.matchEnd && !uiStatus.anotherPlayerReady) {
                             uiStatus.anotherPlayerReady = true;
-                            var $offlineAlert = $('.offline-alert');
                             if ($offlineAlert.length) {
                                 window.chessPy.removeAlert($offlineAlert);
                             }
+                            if ($anotherPlayerAlert.length) {
+                                window.chessPy.removeAlert($anotherPlayerAlert);
+                            }
+                            window.chessPy.alert("{{ utils.gettext('Another player is online. Game begins!') }}");
+                        } else if (!data.another && !uiStatus.matchEnd && !uiStatus.anotherPlayerReady && !$anotherPlayerAlert.length) {
+                            window.chessPy.alert("{{ utils.gettext('Waiting for another player...') }}", 'warning', 0, 'waiting-another-player-alert');
                         }
                     },
                     function() {
