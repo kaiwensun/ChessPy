@@ -37,14 +37,16 @@
             );
         },
         'removeAlert': function($alert) {
-            $alert.fadeOut(function() {
-                $alert.remove();
-                --(window.chessPy._alertCnt);
-                args = window.chessPy._alertQueue.shift();
-                if (args !== undefined) {
-                    window.chessPy._showAlert.apply(this, args);
-                }
-            });
+            if ($alert.length) {
+                $alert.fadeOut(function() {
+                    $alert.remove();
+                    --(window.chessPy._alertCnt);
+                    args = window.chessPy._alertQueue.shift();
+                    if (args !== undefined) {
+                        window.chessPy._showAlert.apply(this, args);
+                    }
+                });
+            }
         },
         '_alertLimit': 3,
         '_alertCnt': 0,
