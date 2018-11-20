@@ -49,5 +49,7 @@ DICT = {
     "Oops! Something went wrong!": "哎呀！出错啦！",
     "You are offline.": "网络中断",
     "Waiting for another player...": "等待另一名玩家……",
-    "Another player is online. Game begins!": "对方已上线。游戏开始！"
+    "Another player is online. Game begins!": "对方已上线。游戏开始！",
+    "Another player is offline.": "对方离线。",
+    "Another player is back online.": "对方重新上线。"
 }
