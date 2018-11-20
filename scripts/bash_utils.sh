@@ -38,7 +38,7 @@ install_windows_redis() {
 }
 
 install_linux_redis() {
-    if [ ! hash python3.7 2>/dev/null ]; then
+    if [ ! -f ./redis/linux/src/redis-server ]; then
         mkdir -p redis/linux
         pushd redis/linux
         rm -rf *
