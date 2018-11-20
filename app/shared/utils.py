@@ -47,8 +47,8 @@ def get_locale():
 
 
 class LazyString(str):
-    def __new__(cls, value, *args, **kwargs):
-        return super(LazyString, cls).__new__(cls, value)
+    def __new__(cls, func, string, *args):
+        return str.__new__(cls)
 
     def __init__(self, func, string, *args):
         self.func = func
