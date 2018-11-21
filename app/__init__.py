@@ -17,6 +17,7 @@ from config import settings
 
 
 os.environ['FLASK_ENV'] = settings.ENV
+os.environ['FLASK_DEBUG'] = settings.DEBUG_MODE
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = settings.FLASK_APP_SECRET_KEY
