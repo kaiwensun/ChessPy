@@ -205,6 +205,7 @@
                     window.chessPy.alert(data, 'secondary');
                 },
                 'msg_type_heartbeat': function(data) {
+                    var initAnotherPlayerReady = uiStatus.anotherPlayerReady;
                     uiStatus.anotherPlayerReady = true;
                     if (uiStatus.offlineCountDownTimer) {
                         clearInterval(uiStatus.offlineCountDownTimer);
@@ -217,7 +218,7 @@
                     }
                     var $anotherPlayerAlert = $('.waiting-another-player-alert');
                     if ($anotherPlayerAlert.length) {
-                        if (uiStatus.anotherPlayerReady) {
+                        if (uiStatus.initAnotherPlayerReady) {
                             window.chessPy.alert("{{ utils.gettext('Another player is back online.') }}");
                         } else {
                             window.chessPy.alert("{{ utils.gettext('Another player is online. Game begins!') }}");
