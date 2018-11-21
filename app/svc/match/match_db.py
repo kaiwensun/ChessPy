@@ -74,6 +74,11 @@ class MatchDB(object):
         return result
 
     @staticmethod
+    def queue_length(table, entry_id):
+        key = MatchDB._genkey(table, entry_id)
+        return redis_client.llen(key)
+
+    @staticmethod
     def force_remove_from_queue(table, entry_id, value, ex=settings.GAME_TTL):
         key = MatchDB._genkey(table, entry_id)
         result = redis_client.lrem(key, 0, value)

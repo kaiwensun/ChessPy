@@ -104,6 +104,10 @@ class Match(object):
             'msg_data': None
         }
 
+    def get_message_queue_length(self, my_uid):
+        channel_name = self._channel_to(my_uid)
+        return MatchDB.queue_length('match_channel', channel_name)
+
     def move(self, src, dst):
         player_color = self.player_color
         chessboard = self.chessboard

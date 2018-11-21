@@ -19,7 +19,8 @@ def handle_c2s(message):
         MSG_TYPE_DRAWREQ: handle_draw_request,
         MSG_TYPE_REPLYDRAWREQ: handle_reply_draw_request,
         MSG_TYPE_RESIGNREQ: handle_resign_request,
-        MSG_TYPE_CHAT:handle_chat
+        MSG_TYPE_CHAT: handle_chat,
+        MSG_TYPE_CHAT: handle_leave
     }
     handler = handlers.get(message['msg_type'])
     return handler(message)
@@ -45,11 +46,13 @@ def handle_chessmove(message):
 
 
 def handle_heartbeat(message):
-    MatchDB.set('HEART_BEAT', current_user.user_id, True, ex=5)
     match = match_driver.get_match(current_user.user_id)
-    another_uid = match.another_player_uid
-    another_user_is_online = MatchDB.get('HEART_BEAT', another_uid, ex=None)
-    return {'another': another_user_is_online}
+    msg_len = match.get_message_queue_length(current_user.user_id)
+    if msg_len > 30:
+        return "QUE FULL"
+    match.send_message_from(
+        current_user.user_id, message['msg_type'], message['msg_data'])
+    return "OK"
 
 
 def handle_undo_request(message):
@@ -170,7 +173,8 @@ def handle_resign_request(_):
     match.is_over = True
     match.save()
     msg_type = MSG_TYPE_MATCHEND
-    msg_data = {'winner': [color.value for color in ChessColor if color != match.player_color][0],
+    msg_data = {'winner': [color.value for color in ChessColor
+                           if color != match.player_color][0],
                 'reason': 'resign'}
     for player_uid in match.player_uids:
         match.send_message_from(player_uid, msg_type, msg_data)
@@ -179,6 +183,22 @@ def handle_resign_request(_):
 
 def handle_chat(message):
     match = match_driver.get_match(current_user.user_id)
+    if match.is_over:
+        return {'result': False}
     msg_type = message['msg_type']
     msg_data = message['msg_data']
     match.send_message_from(current_user.user_id, msg_type, msg_data)
+    return {'result': True}
+
+
+def handle_leave(message):
+    match = match_driver.get_match(current_user.user_id)
+    if match.is_over:
+        return {'result': False}
+    msg_type = MSG_TYPE_MATCHEND
+    msg_data = {'winner': [color.value for color in ChessColor
+                           if color != match.player_color][0],
+                'reason': 'abort'}
+    for player_uid in match.player_uids:
+        match.send_message_from(player_uid, msg_type, msg_data)
+    return {'result': True}
