@@ -206,6 +206,10 @@
                 },
                 'msg_type_heartbeat': function(data) {
                     uiStatus.anotherPlayerReady = true;
+                    if (uiStatus.offlineCountDownTimer) {
+                        clearInterval(uiStatus.offlineCountDownTimer);
+                        uiStatus.offlineCountDownTimer = undefined;
+                    }
                     var $anotherPlayerAlert = $('.waiting-another-player-alert');
                     window.chessPy.removeAlert($anotherPlayerAlert);
                     if (uiStatus.matchEnd) {
@@ -224,11 +228,29 @@
                     var $anotherPlayerAlert = $('.waiting-another-player-alert');
                     if (!$anotherPlayerAlert.length) {
                         if (uiStatus.anotherPlayerReady) {
-                            var text = "{{ utils.gettext('Another player is offline.') }}";
+                            var html = "{{ utils.gettext('Another player is offline.') }}" + "(<span class='remaining'>{{ OFFLINE_TTL }}</span>)";
+                            if (uiStatus.offlineCountDownTimer) {
+                                clearInterval(uiStatus.offlineCountDownTimer)
+                            }
+                            setTimeout(function() {
+                                uiStatus.offlineCountDownTimer = setInterval(function() {
+                                    var remaining = $('.waiting-another-player-alert .remaining');
+                                    if (remaining.length == 0 || uiStatus.matchEnd) {
+                                        clearInterval(uiStatus.offlineCountDownTimer);
+                                        uiStatus.offlineCountDownTimer = undefined;
+                                        return;
+                                    }
+                                    var second = parseInt(remaining.text());
+                                    if (second > 0) {
+                                        --second;
+                                    }
+                                    remaining.text(second);
+                                }, 1000);
+                            }, 1000);
                         } else {
-                            var text = "{{ utils.gettext('Waiting for another player...') }}";
+                            var html = "{{ utils.gettext('Waiting for another player...') }}";
                         }
-                        window.chessPy.alert(text,'warning', 0, 'waiting-another-player-alert');
+                        window.chessPy.alert(html,'warning', 0, 'waiting-another-player-alert');
                     }
                 }
             }

@@ -31,7 +31,7 @@ def force_to_stop():
     if match.is_over:
         return {'result': False}
     msg_type = MSG_TYPE_MATCHEND
-    msg_data = {'winner': match.player_color,
+    msg_data = {'winner': match.player_color.value,
                 'reason': 'offline'}
     for player_uid in match.player_uids:
         match.send_message_from(player_uid, msg_type, msg_data)

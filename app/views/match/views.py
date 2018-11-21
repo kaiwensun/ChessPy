@@ -21,6 +21,7 @@ from app.svc.match import exceptions
 
 from app.svc.membership import driver as membership_driver
 from app.svc.match import driver as match_driver
+from config import settings
 
 bp = Blueprint(__name__.split('.')[2], __name__)
 
@@ -57,6 +58,7 @@ def view_match():
         return redirect(url_for('site.index'))
     match_msg_form = forms.MessageForm()
     return render_template('site/play.html', match=match,
+                           OFFLINE_TTL=settings.OFFLINE_TTL,
                            match_msg_form=match_msg_form)
 
 
@@ -75,7 +77,7 @@ def receive_match_message():
             else:
                 now = datetime.datetime.now()
                 delta = (now - last_valid_msg_time).seconds
-                if delta > 90:
+                if delta > settings.OFFLINE_TTL:
                     # offline too long. force match to stop
                     force_to_stop()
                     break
