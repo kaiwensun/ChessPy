@@ -24,3 +24,15 @@ def handle_s2c():
 
 def handle_matchend(message):
     match_driver.leave_match(current_user.user_id)
+
+
+def force_to_stop():
+    match = match_driver.get_match(current_user.user_id)
+    if match.is_over:
+        return {'result': False}
+    msg_type = MSG_TYPE_MATCHEND
+    msg_data = {'winner': match.player_color.value,
+                'reason': 'offline'}
+    for player_uid in match.player_uids:
+        match.send_message_from(player_uid, msg_type, msg_data)
+    return {'result': True}

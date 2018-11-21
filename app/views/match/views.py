@@ -1,5 +1,6 @@
 import json
 import time
+import datetime
 
 from flask import Blueprint
 from flask import request
@@ -14,12 +15,13 @@ from flask_login import current_user
 
 from . import forms
 from app.svc.match.msg_handler_c2s import handle_c2s
-from app.svc.match.msg_handler_s2c import handle_s2c
+from app.svc.match.msg_handler_s2c import handle_s2c, force_to_stop
 from app.svc.match.msg_meta import MSG_TYPE_NOP
 from app.svc.match import exceptions
 
 from app.svc.membership import driver as membership_driver
 from app.svc.match import driver as match_driver
+from config import settings
 
 bp = Blueprint(__name__.split('.')[2], __name__)
 
@@ -56,21 +58,32 @@ def view_match():
         return redirect(url_for('site.index'))
     match_msg_form = forms.MessageForm()
     return render_template('site/play.html', match=match,
+                           OFFLINE_TTL=settings.OFFLINE_TTL,
                            match_msg_form=match_msg_form)
 
 
 @bp.route('receive_match_message')
 def receive_match_message():
     def yield_message():
+        last_valid_msg_time = datetime.datetime.now()
         while True:
             rval = handle_s2c()
             if rval is None:
                 break
-            if rval.get('msg_type') == MSG_TYPE_NOP:
-                yield ': nop\n\n'
-                time.sleep(0.5)
-            else:
+            print(rval['msg_type'])
+            if rval['msg_type'] != MSG_TYPE_NOP:
+                last_valid_msg_time = datetime.datetime.now()
                 yield 'data: {}\n\n'.format(json.dumps(rval))
+            else:
+                now = datetime.datetime.now()
+                delta = (now - last_valid_msg_time).seconds
+                if delta > settings.OFFLINE_TTL:
+                    # offline too long. force match to stop
+                    force_to_stop()
+                    break
+                if delta > 5:
+                    yield 'data: {}\n\n'.format(json.dumps(rval))
+                time.sleep(0.5)
     return Response(stream_with_context(yield_message()),
                     mimetype='text/event-stream')
 

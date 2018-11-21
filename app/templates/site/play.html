@@ -125,6 +125,7 @@
                     var lastEventId = event.lastEventId;
                     var message = JSON.parse(event.data);
                     var handler = msgHandlers[message.msg_type]
+                    window.chessPy.removeAlert($('.offline-alert'));
                     if (handler !== undefined) {
                         handler(message.msg_data);
                     }
@@ -193,7 +194,7 @@
                         }
                     } else if (data.reason == 'draw by agreement') {
                             text = "{{ utils.gettext('Draw by aggrement!') }}";
-                    } else if (data.reason == 'resign') {
+                    } else if (['resign', 'abort', 'offline'].indexOf(data.reason > -1)) {
                         if (data.winner == $('#match-data').data('my-color')) {
                             text = "{{ utils.gettext('The other play resigned.') }}";
                         }
@@ -202,6 +203,55 @@
                 },
                 'msg_type_chat': function(data) {
                     window.chessPy.alert(data, 'secondary');
+                },
+                'msg_type_heartbeat': function(data) {
+                    uiStatus.anotherPlayerReady = true;
+                    if (uiStatus.offlineCountDownTimer) {
+                        clearInterval(uiStatus.offlineCountDownTimer);
+                        uiStatus.offlineCountDownTimer = undefined;
+                    }
+                    var $anotherPlayerAlert = $('.waiting-another-player-alert');
+                    window.chessPy.removeAlert($anotherPlayerAlert);
+                    if (uiStatus.matchEnd) {
+                        return;
+                    }
+                    var $anotherPlayerAlert = $('.waiting-another-player-alert');
+                    if ($anotherPlayerAlert.length) {
+                        if (uiStatus.anotherPlayerReady) {
+                            window.chessPy.alert("{{ utils.gettext('Another player is back online.') }}");
+                        } else {
+                            window.chessPy.alert("{{ utils.gettext('Another player is online. Game begins!') }}");
+                        }
+                    }
+                },
+                'msg_type_nop': function(data) {
+                    var $anotherPlayerAlert = $('.waiting-another-player-alert');
+                    if (!$anotherPlayerAlert.length) {
+                        if (uiStatus.anotherPlayerReady) {
+                            var html = "{{ utils.gettext('Another player is offline.') }}" + "(<span class='remaining'>{{ OFFLINE_TTL }}</span>)";
+                            if (uiStatus.offlineCountDownTimer) {
+                                clearInterval(uiStatus.offlineCountDownTimer)
+                            }
+                            setTimeout(function() {
+                                uiStatus.offlineCountDownTimer = setInterval(function() {
+                                    var remaining = $('.waiting-another-player-alert .remaining');
+                                    if (remaining.length == 0 || uiStatus.matchEnd) {
+                                        clearInterval(uiStatus.offlineCountDownTimer);
+                                        uiStatus.offlineCountDownTimer = undefined;
+                                        return;
+                                    }
+                                    var second = parseInt(remaining.text());
+                                    if (second > 0) {
+                                        --second;
+                                    }
+                                    remaining.text(second);
+                                }, 1000);
+                            }, 1000);
+                        } else {
+                            var html = "{{ utils.gettext('Waiting for another player...') }}";
+                        }
+                        window.chessPy.alert(html,'warning', 0, 'waiting-another-player-alert');
+                    }
                 }
             }
 
@@ -329,6 +379,12 @@
                 }
             })
 
+            $('.go-back').on('click', function() {
+                var msgType = "msg_type_leave";
+                var msgData = "dummy";
+                sendMessage(msgType, msgData);
+            });
+
             $('.switch-text').on('click', function() {
                 $('#chessboard-container').toggleClass('use-pic');
             });
@@ -340,33 +396,9 @@
                 }
                 var msgType = "msg_type_heartbeat";
                 var msgData = "OK";
-                sendMessage(msgType, msgData,
-                    function(data) {
-                        if (uiStatus.matchEnd) {
-                            return;
-                        }
-                        window.chessPy.removeAlert($('.offline-alert'));
-                        var $anotherPlayerAlert = $('.waiting-another-player-alert');
-                        if ($anotherPlayerAlert.length && data.another && uiStatus.anotherPlayerReady) {
-                            window.chessPy.removeAlert($anotherPlayerAlert);
-                            window.chessPy.alert("{{ utils.gettext('Another player is back online.') }}");
-                        }
-                        if (data.another) {
-                            if (!uiStatus.anotherPlayerReady) {
-                                uiStatus.anotherPlayerReady = true;
-                                window.chessPy.removeAlert($anotherPlayerAlert);
-                                window.chessPy.alert("{{ utils.gettext('Another player is online. Game begins!') }}");
-                            }
-                        } else {
-                            if (!$anotherPlayerAlert.length) {
-                                if(!uiStatus.anotherPlayerReady) {
-                                window.chessPy.alert("{{ utils.gettext('Waiting for another player...') }}", 'warning', 0, 'waiting-another-player-alert');
-                                } else if (uiStatus.anotherPlayerReady) {
-                                    window.chessPy.alert("{{ utils.gettext('Another player is offline.') }}",'warning', 0, 'waiting-another-player-alert');
-                                }
-                            }
-                        }
-                    },
+                sendMessage(msgType, msgData, function() {
+                    console.log("I reported I am online!");
+                },
                     function() {
                         var $offlineAlert = $('.offline-alert');
                         if (!$offlineAlert.length && !uiStatus.matchEnd) {

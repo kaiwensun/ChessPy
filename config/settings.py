@@ -8,6 +8,7 @@ ENV = _NOT_SET_
 FLASK_APP_SECRET_KEY = _NOT_SET_
 IS_ADMIN_SERVER = False
 GAME_TTL = 60 * 60
+OFFLINE_TTL = 60
 
 thismodule = sys.modules[__name__]
 try:
