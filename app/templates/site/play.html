@@ -347,7 +347,7 @@
                         }
                         window.chessPy.removeAlert($('.offline-alert'));
                         var $anotherPlayerAlert = $('.waiting-another-player-alert');
-                        if ($anotherPlayerAlert.length && data.another) {
+                        if ($anotherPlayerAlert.length && data.another && uiStatus.anotherPlayerReady) {
                             window.chessPy.removeAlert($anotherPlayerAlert);
                             window.chessPy.alert("{{ utils.gettext('Another player is back online.') }}");
                         }
@@ -369,7 +369,7 @@
                     },
                     function() {
                         var $offlineAlert = $('.offline-alert');
-                        if (!$offlineAlert.length) {
+                        if (!$offlineAlert.length && !uiStatus.matchEnd) {
                             window.chessPy.alert("{{ utils.gettext('You are offline.') }}", 'warning', 0, 'offline-alert');
                         }
                     }
